@@ -312,7 +312,8 @@ export default {
     money:{
       inserted:function(el){
         var str = el.innerHTML;
-        var output,decm = "";
+        var output,
+            decm = "";
         if(str.includes('.')){
           decm = str.split('')[1];
           str = str.split('.')[0];
