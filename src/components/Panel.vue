@@ -315,9 +315,8 @@ export default {
         var output,
             decm = "";
         if(str.includes('.')){
-          decm = str.split('')[1];
+          decm ='.' + str.split('.')[1];
           str = str.split('.')[0];
-          
         }
           if( !isNaN(str) && str.toString().length >= 4 ){
             output = str.split('').reverse().map((x,i)=>{
