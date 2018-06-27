@@ -9,13 +9,47 @@
     </div>
     <div class='w50' v-if='billData !== null'>
        <div class='fl w100 pa2 br-gray'>
-          Bill Details 
-          <a v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf?bid="+bid'><i class="fa fa-print fr cursor" title='Print the Bill'></i></a>
-          <i v-if='reportData !== null' @click='getPdf' class="fa fa-print fr cursor" title='Print the Bill'></i>
+          Bill Details
+          <div class='flex fr items-baseline w-20'> 
+            <a v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf?bid="+bid'>
+              <i class="fa fa-print fr cursor" title='Print the Bill'></i>
+            </a>
+            <a @click='getAttach' data-toggle='modal'  data-target='.myModal2'>View Attachments</a>
+            <i v-if='reportData !== null' @click='getPdf' class="fa fa-print cursor" title='Print the Bill'></i>
+          </div>
         </div>
        <div class='fl w100 y-flow h-100 pa3' style='height:500px;border-right:1px solid #e7e7e7;'  v-html='billData'>
        </div>
-    </div>  
+    </div>
+    <!-- modal -->
+    <div class="modal right fade myModal2"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+	<div class="modal-dialog" role="document" style='width:35%;'>
+			<div class="modal-content">
+
+			<div class="modal-header fl w100">
+				<div class='fl w100 p2-4'>
+				<button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
+				<div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
+				
+				</div>
+			</div>
+
+			<div id='modalContent' class="modal-body fl w100">
+				<ul>
+          <li class="fl w-50" v-for='i in ImgHolder' :key='i.imageId'>
+            <a href='http://www.hobse.com/demo/public_html/images/hobse_logo.png' data-lightbox='image1' data-title='bill'>
+              <img class='img img-responsive' width="100" height="100" src='http://www.hobse.com/demo/public_html/images/hobse_logo.png'  />
+            </a>
+            
+          </li>
+          <li v-if='ImgHolder.length === 0'>No Attachments found</li>
+        </ul>
+
+			</div>
+
+			</div><!-- modal-content -->
+	</div><!-- modal-dialog -->
+</div> <!-- modal end -->  
     
   </div>
 </template>
@@ -51,7 +85,8 @@ export default {
       activeListFilter: {},
       billData: null,
       bid:null,
-      reportData:null
+      reportData:null,
+      ImgHolder: [{}]
     }
   },
   methods: {
@@ -249,9 +284,15 @@ export default {
       try{
         func();
       }catch(e){
-        console.log(e.message);
-        alert('Sorry, something went wrong in the backend Try again later');
+        // console.log(e.message);
+        alert('Sorry, something went wrong Try again later');
       };
+    },
+    getAttach: function(){
+      const self = this;
+      $.post(api.getAttach,{bid:self.bid}).done(function(data){
+       self.ImgHolder = JSON.parse(data);
+      }).fail(x => alert('Sorry, something went wrong Try again later'));
     }
 
   },
