@@ -11,7 +11,7 @@
        <div class='fl w100 pa2 br-gray'>
           Bill Details
           <div class='flex fr items-baseline w-20'> 
-            <a v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf?bid="+bid'>
+            <a target='_blank' v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf/"+bid'>
               <i class="fa fa-print fr cursor" title='Print the Bill'></i>
             </a>
             <a @click='getAttach' data-toggle='modal'  data-target='.myModal2'>View Attachments</a>
