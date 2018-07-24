@@ -11,8 +11,8 @@
           </span>
           
         </div>
-        <div class='pa1 tc' v-if='list.details.length === 0'>
-          <datepicker calendar-class='w200' wrapper-class='di' input-class=' w40 btn btn-default btn-xs'	 v-model='filterDate.from'></datepicker> 
+        <div class='pa1 tc' v-if='list.group.length > 0 || list.meta.length > 0'>
+          <datepicker @input='setDate' calendar-class='w200' wrapper-class='di' input-class=' w40 btn btn-default btn-xs'	 v-model='filterDate.from'></datepicker> 
           <div class='di w20 gray p5-10'>to</div>
           <datepicker  @input='setDate' calendar-class='w200' wrapper-class='di' input-class='w40 btn btn-default btn-xs'	 v-model='filterDate.to' :disabled-dates='{to: filterDate.from}'></datepicker> 
   
@@ -351,12 +351,16 @@ export default {
       return arr.map(x => x[obj]).reduce((acc,item) => Number(acc) + Number(item))
     },
     getData: function(payLoad,type){
+      
       if(type !== 'getBillGroup'){
         this.activeListItem = payLoad;//active item
       }
       
-      //this.activeListItem = payLoad;
-      this.$emit(type,payLoad);
+      //change time unixstamp
+      let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
+      let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
+      
+      this.$emit(type,Object.assign(payLoad,{to,from}));//combine the date 
     },
     emitFilter: function(data){
       const self = this;
@@ -370,7 +374,10 @@ export default {
    },
    setDate: function(){
      const self = this;
-     self.$emit('hadDate',{active: self.activeListItem,filterDate: self.filterDate});
+      //change time unixstamp
+      let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
+      let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
+     self.$emit('hadDate',{active: self.activeListItem,filterDate: {to,from}});
    }
   },
   

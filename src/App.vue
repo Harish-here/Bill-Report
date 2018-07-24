@@ -1,12 +1,22 @@
 <template>
   <div id="app" class='flex'>
     <div class='w25'>
-      <Panel :list='listData' :activeMeta='active' @getReport='report' @hadDate='setFilterDate' @getBillGroup='billGroup' @getBillList='billList'  @back='backs'  @hadFilter='setGroupFilter' />
+      <Panel :list='listData' :activeMeta='active' 
+             @getReport='report'
+             @hadDate='setFilterDate' 
+             @getBillGroup='billGroup'
+             @getBillList='billList'  
+             @back='backs'  
+             @hadFilter='setGroupFilter' />
     </div>
-    
     <div class='w25' v-if='billVisible'>
-      <Panel :activeMeta='activeGroup' @getReport='report' @getBill='get' @hadFilter='setListFilter' :list='{meta:[],group: [],details:listDetails}'/>
+      <Panel :activeMeta='activeGroup' 
+             @getReport='report' 
+             @getBill='get' 
+             @hadFilter='setListFilter' 
+             :list='{meta:[],group: [],details:listDetails}'/>
     </div>
+    <!-- Bill html -->
     <div class='w50' v-if='billData !== null'>
        <div class='fl w100 pa2 br-gray'>
           Bill Details
@@ -23,27 +33,44 @@
     </div>
     <!-- modal -->
     <div class="modal right fade myModal2"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-	<div class="modal-dialog" role="document" style='width:35%;'>
+	<div class="modal-dialog" role="document" style='width:43%;'>
 			<div class="modal-content">
 
-			<div class="modal-header fl w100">
-				<div class='fl w100 p2-4'>
+			<div class="modal-header">
+				<div class='p2-4'>
 				<button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
 				<div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
 				
 				</div>
 			</div>
 
-			<div id='modalContent' class="modal-body fl w100">
-				<ul>
-          <li class="fl w-50" v-for='i in ImgHolder' :key='i.imageId'>
-            <a href='http://www.hobse.com/demo/public_html/images/hobse_logo.png' data-lightbox='image1' data-title='bill'>
-              <img class='img img-responsive' width="100" height="100" src='http://www.hobse.com/demo/public_html/images/hobse_logo.png'  />
-            </a>
-            
-          </li>
-          <li v-if='ImgHolder.length === 0'>No Attachments found</li>
-        </ul>
+			<div id='modalContent' class="modal-body">
+        <div class='image-grid'>
+          <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
+            <li class='tc gray navy h4'>Your's</li>
+            <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
+              <span class='w-100 tc'>
+                <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
+                  <img  :src='i.url' width='150'  />
+                </a>
+                <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
+              </span>
+            </li>
+            <li class='gray pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
+          </ul>
+          <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
+            <li class='tc gray navy h4'>Hotel</li>
+            <li class="w-100 flex pa2 ma2 template-download" v-for='i in ImgHotels' :key='i.id'>
+              <span class='w-100 tc'>
+                <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
+                  <img  :src='i.url' width='150'  />
+                </a>
+                <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
+              </span>
+            </li>
+            <li class='gray pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
+          </ul>
+        </div>
 
 			</div>
 
@@ -86,7 +113,9 @@ export default {
       billData: null,
       bid:null,
       reportData:null,
-      ImgHolder: [{}]
+      ImgHolder: {},
+      ImgHotels: [],
+      ImgCorp: [],
     }
   },
   methods: {
@@ -98,12 +127,15 @@ export default {
       this.bid = null;
       this.reportData = null;
     },
+    download: function(f,p){
+      download(f,p)
+    },
     somethingWentWrong: function(){
       alert('Sorry, something went wrong Please try again!');
     },
     createCSV: function(JSONData, ReportTitle, ShowLabel){
       //snippet from third party to create CSV
-      var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+      var arrData = typeof JSONData !== 'object' ? JSON.parse(JSONData) : JSONData;
     
         var CSV = '';    
         //Set Report title in first row or line
@@ -290,8 +322,17 @@ export default {
     },
     getAttach: function(){
       const self = this;
-      $.post(api.getAttach,{bid:self.bid}).done(function(data){
-       self.ImgHolder = JSON.parse(data);
+      $.get(api.getAttach+self.bid).done(function(data){
+       var temp = JSON.parse(data);
+       
+       if(temp.hasOwnProperty('files')){
+         self.ImgHolder = JSON.parse(data);
+         self.ImgHotels = temp.files.filter(x => x.senderTypeId === '1');
+         self.ImgCorp = temp.files.filter(x => x.senderTypeId === '3');
+       }else{
+         self.ImgHotels = [];
+         self.ImgCorp = [];
+       }
       }).fail(x => alert('Sorry, something went wrong Try again later'));
     }
 
