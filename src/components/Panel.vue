@@ -298,7 +298,11 @@ export default {
       ],
       activeListItem: {},
       filterDate: {
-        from: new Date(),
+        from: (function(){ 
+          var dat = new Date();
+          var newDate = dat.setMonth(dat.getMonth() - 4);//number will be the months difference from current month
+          return new Date(newDate)
+        })(),
         to: new Date()
       },
       searchString: "",
@@ -343,7 +347,7 @@ export default {
     getReport: function(){
       const self = this;
       (self.list.group.length > 0 && self.list.details.length === 0) ?
-      this.$emit('getReport',{data: self.list.group,date:self.filterDate,from:'group'}):
+      this.$emit('getReport',{data: self.list.group,date:self.filterDate,from:'group'}) :
       this.$emit('getReport',{data: self.list.details,date:self.filterDate,from:'details'})
       
     },
