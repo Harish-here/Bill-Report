@@ -68,7 +68,7 @@
             </div>
           </li>
           <li class=' p5-10 tc gray f11 br-none' v-if='list.group.length !== 0 && filterList.length === 0'>Wups! No matches</li>
-          <li class=" p5-10 tc gray f11 br-none" v-if='list.group.length === 0'></li>
+          <li class=" p5-10 tc gray f11 br-none" v-if='list.group.length === 0'>Wups! No report</li>
       </ul>
     </span>
     
