@@ -1,7 +1,9 @@
 <template>
   <div id="app" class='flex'>
     <div class='w25'>
-      <Panel :list='listData' :activeMeta='active' 
+      <Panel :list='listData'
+             :activeMeta='active' 
+             :ActiveView='view'
              @getReport='report'
              @hadDate='setFilterDate' 
              @getBillGroup='billGroup'
@@ -9,8 +11,10 @@
              @back='backs'  
              @hadFilter='setGroupFilter' />
     </div>
+    
     <div class='w25' v-if='billVisible'>
-      <Panel :activeMeta='activeGroup' 
+      <Panel :activeMeta='activeGroup'
+             ActiveView='details' 
              @getReport='report' 
              @getBill='get' 
              @hadFilter='setListFilter' 
@@ -38,9 +42,8 @@
 
 			<div class="modal-header">
 				<div class='p2-4'>
-				<button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
-				<div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
-				
+          <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
+          <div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
 				</div>
 			</div>
 
