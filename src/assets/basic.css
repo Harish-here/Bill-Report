@@ -28,7 +28,8 @@ hr{ margin-bottom:0px !important; }
 .w50{ width : 50%; }
 .w60{ width : 60%; }
 .w100{ width : 100%; }
-.h-fix{height:380px;}
+.h-fix{height:441px;}
+.h-fix-g{height:424px;}
 .h-head{height: 110px;}
 .h-75{height: 75vh; }
 .h-60{height: 60vh; }
@@ -117,7 +118,7 @@ hr{ margin-bottom:0px !important; }
 
 /* Ghost btn*/
 .btn-ghost{
-	border: 1px solid #009688;
+	/* border: 1px solid #009688; */
 	color:#009688;
 	background-color: #fff;
 }

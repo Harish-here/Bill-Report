@@ -14,25 +14,27 @@
     
     <div class='w25' v-if='billVisible'>
       <Panel :activeMeta='activeGroup'
+             :ActiveMetaData='active'
+             :ActiveMetaDataList='listMeta'
              ActiveView='details' 
              @getReport='report' 
              @getBill='get' 
-             @hadFilter='setListFilter' 
+             @GroupEmitted='setGroupFilter' 
              :list='{meta:[],group: [],details:listDetails}'/>
     </div>
     <!-- Bill html -->
     <div class='w50' v-if='billData !== null'>
-       <div class='fl w100 pa2 br-gray'>
+       <div class='fl w100 pa2 br-gray b6 f14'>
           Bill Details
           <div class='flex fr items-baseline w-20'> 
             <a target='_blank' v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf/"+bid'>
-              <i class="fa fa-print fr cursor" title='Print the Bill'></i>
+              <i class="fa fa-file-pdf-o fr cursor" title='Print the Bill'></i>
             </a>
             <a @click='getAttach' data-toggle='modal'  data-target='.myModal2'>View Attachments</a>
             <i v-if='reportData !== null' @click='getPdf' class="fa fa-print cursor" title='Print the Bill'></i>
           </div>
         </div>
-       <div class='fl w100 y-flow h-100 pa3' style='height:500px;border-right:1px solid #e7e7e7;'  v-html='billData'>
+       <div class='fl w100 y-flow h-100 pa3' style='height:540px;border-right:1px solid #e7e7e7;'  v-html='billData'>
        </div>
     </div>
     <!-- modal -->
@@ -129,6 +131,7 @@ export default {
       this.billData = null;
       this.bid = null;
       this.reportData = null;
+      this.activeGroupFilter = {};
     },
     download: function(f,p){
       download(f,p)

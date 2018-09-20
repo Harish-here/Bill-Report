@@ -5,9 +5,9 @@
         <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
           <i class="fa fa-chevron-left f4" aria-hidden="true"></i>
         </button>
-        <span class='_flx_full f4'>
-            {{ (ActiveView !== "meta") ?  activeMeta.groupName : "Billing Report" }}
-            <i  v-if='ActiveView === "group" || ActiveView === "details"' title='export this as report' @click='getReport' class="fa fa-file-text-o pa1 f4 cursor" aria-hidden="true"></i>
+        <span class='_flx_full flex flex-wrap f4'>
+            {{ (ActiveView !== "meta") ? (ActiveMetaData.hasOwnProperty('groupName' && ActiveView !== "group") ? ActiveMetaData.groupName+ ' > ' : '') + activeMeta.groupName : "Billing Report" }}
+            <i  v-if='ActiveView === "group" || ActiveView === "details"' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
         </span>
         
       </div>
@@ -30,11 +30,19 @@
 
       </div>
        <!-- search text box -->
-      <div class='tc pa2' v-if='ActiveView === "group" || ActiveView === "details"'>
+      <div class='tc pa2' v-if='ActiveView === "group"'>
           <div class='br-clr w100'> 
             <i class="fa fa-search dib" aria-hidden="true"></i>
-            <input class='pa2 b5 dib br-white tc' type='text' v-model='searchString' @input='saySmthn' :placeholder="'search in '+activeMeta.groupName">
+            <input class='pa2 b5 dib br-white tc' type='text' v-model='searchString' @input='saySmthn' :placeholder="'Search in '+activeMeta.groupName">
           </div>
+      </div>
+      <!--- group filter -->
+      <div class='tc' v-if='ActiveView === "details"'>
+       <group :filterData="dataForFilter" :finace-filter="detailsFilter" @setFinanceFilter='FilterEmit' @setFilter='GroupEmit' View='group'/>
+      </div>
+            <!-- filter -->
+      <div class='tc' v-if='ActiveView === "details" && false'>
+        <group :filterData="detailsFilter" @setFilter='FilterEmit' View='details'/>
       </div>
     </div>
 
@@ -44,7 +52,7 @@
     </div>
     <!-- Group listing -->
     <span v-if='ActiveView === "group"'>
-      <ul class='pa h-fix y-flow'>
+      <ul class='pa h-fix-g y-flow'>
           <li class='p5-10 cursor' v-for='i in filterList' :key='i.id' @click='getData(i,"getBillList")' :class='{"active-item":(activeListItem.id !== undefined && activeListItem.id === i.id)}'>
             <div class='black tc b6'>{{i.groupName}}</div>
             <!-- <i class="fa fa-chevron-right fr f14" aria-hidden="true"></i> -->
@@ -67,8 +75,8 @@
             
             </div>
           </li>
-          <li class=' p5-10 tc gray f11 br-none' v-if='list.group.length !== 0 && filterList.length === 0'>Wups! No matches</li>
-          <li class=" p5-10 tc gray f11 br-none" v-if='list.group.length === 0'>Wups! No report</li>
+          <li class=' p5-10 tc gray f11 br-none' v-if='list.group.length !== 0 && filterList.length === 0'>No matches found</li>
+          <li class=" p5-10 tc gray f11 br-none" v-if='list.group.length === 0'>No report found</li>
       </ul>
     </span>
     
@@ -78,7 +86,7 @@
     <span v-if='ActiveView === "details"'>
       <ul class='pa fl w100 h-fix y-flow'>
         <!-- details list without filter -->
-        <li class='fl w100  cursor' v-if='!filterDetailsList[0].hasOwnProperty("groupName")' v-for='i in filterDetailsList' :key='i.bookingId' @click='getData(i,"getBill")' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
+        <li class='fl w100  cursor' v-if='!DetailsList[0].hasOwnProperty("groupName")' v-for='i in DetailsList' :key='i.bookingId' @click='getData(i,"getBill")' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
           
           <div class="fl w100 p5-10">
             <div class='fl w50 p2-4'><span class="label label-primary f11">{{i.bookingVoucherId}}</span></div>
@@ -91,11 +99,13 @@
           </div>
         </li>
         <li class='fl w100  cursor' v-else><!-- details list view with filter -->
-          <div class='fl w100' v-for='i in filterDetailsList' :key='i'>
-            <div class='fl w100 p5-10 black b6 bg-gray center'><span class='fl w100'>{{i.groupName}}</span> 
-              <span class='blue fl w33' style="background-color: rgb(245, 245, 245);" v-money>{{ getTotal(i.bills,'paid') }}</span>  
-              <span class='green fl w33' v-money>{{ getTotal(i.bills,'pending') }}</span>
-              <span class='reds fl w33' v-money>{{ getTotal(i.bills,'total') }}</span>
+          <div class='fl w100' v-for='i in DetailsList' :key='i'>
+            <div class='fl w100 p5-10 black b6 bg-gray center'><span class='fl w100'>{{i.groupName}}</span>
+              <div class='flex w100'>  
+                <span class='flex flex-column _flx_full'>Total<span class='reds fl' v-money>{{ getTotal(i.bills,'total') }}</span></span>
+                <span class='flex flex-column _flx_full'>Paid<span class='blue fl' style="background-color: rgb(245, 245, 245);" v-money>{{ getTotal(i.bills,'paid') }}</span></span>
+                <span class='flex flex-column _flx_full'>Pending<span class='green fl' v-money>{{ getTotal(i.bills,'pending') }}</span></span>
+              </div>
             </div>
             <div class='fl w100 cursor groupList p2-4' v-for='y in i.bills' :key='y.bookingId' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}' @click='getData(y,"getBill")'>
                 <div class="fl w100 p2-4">
@@ -104,18 +114,18 @@
                 </div>
                 
                 <div class="fl w100 p2-4">
-                  <div class='fl w50 p2-4'>{{y.customerName}}  <span >{{y.payStatus}}</span></div>
+                  <div class='fl w50 p2-4'>{{y.customerName}} </div>
                   <div class='fl w50 al-right p2-4 b6 black f14'>
                     <span class='badge badge-primary' v-money>{{y.total}}</span>
                   </div>
                 </div>
             </div>
-            <div class='fl w100 p5-10 center gray f11' v-if='i.bills.length === 0'>Wups! No Bills are here</div>
+            <div class='fl w100 p5-10 center gray f11' v-if='i.bills.length === 0'>No Bills found</div>
             <!-- bill strip end -->
             
           </div>
         </li>
-        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length !== 0 && filterDetailsList.length === 0'>Wups! No Bill are there</li>
+        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length !== 0 && filterDetailsList.length === 0'>No Bill found</li>
         <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length === 0'>Wups! No Bill are there</li>
       </ul>
     </span>
@@ -131,19 +141,17 @@
     <!-- report sumary -->
     <div class='flex flex-column bg-ddd' style="overflow-x:auto;"  v-if='ActiveView === "group" || ActiveView === "details"'>
       
-        <div class='tc pa1'>summary</div>
+        <div class='tc pa1 b6'>Summary</div>
         
         <div class='flex flex-stretch f5 tc'>
-          <div class='blue _flx_full' v-money>{{overAllTotal}}</div>
-          <div class='green _flx_full' v-money>{{overAllPaid}}</div>
-          <div class='reds _flx_full' v-money>{{overAllPending}}</div>
+         <div class='flex flex-column  _flx_full'>Total <div class='blue' v-money>{{overAllTotal}}</div></div>
+         <div class='flex flex-column  _flx_full'>Paid<div class='green' v-money>{{overAllPaid}}</div></div>
+         <div class='flex flex-column  _flx_full'>Pending <div class='reds' v-money>{{overAllPending}}</div></div>
         </div>
        
     </div>
-    <!-- filter -->
-    <div class='tc' v-if='ActiveView === "group" || ActiveView === "details"'>
-       <group :filterData="dataForFilter" @setFilter='emitFilter'/>
-    </div>
+
+
   </div>
 </template>
 
@@ -177,9 +185,9 @@ export default {
   computed: {
     dataForFilter(){
       const self = this;
-      if(this.list.meta.length > 0 && this.list.group.length > 0){
-        return this.list.meta.filter(function(x){
-          return self.activeMeta.filterMap.findIndex(y => { return y === x.id }) !== -1
+      if(this.ActiveMetaDataList.length > 0){
+        return this.ActiveMetaDataList.filter(function(x){
+          return self.ActiveMetaData.filterMap.findIndex(y => { return y === x.id }) !== -1
         })
       }else{
         return this.detailsFilter
@@ -191,9 +199,16 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
 
-          return Math.round(Number(this.list.details.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x))))
+          return Number(this.list.details.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x)))
         }else{
-          return 0 ;//do the calc when they are in group
+          return Number(this.list.details.map(x => {
+            if(x.bills.length > 0){
+              return x.bills.map(y => y.paid).reduce((acc1,u) => Number(acc1) + Number(x));
+            }else{
+              return 0;
+            }
+            
+          }).reduce((acc,x) => Number(acc) + Number(x)));//do the calc when they are in group
         }
       }
     },
@@ -203,9 +218,13 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Math.round(Number(this.list.details.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x))))
+          return Number(this.list.details.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x)))
         }else{
-          return 0 ;//do the calc when they are in group
+          return Number(this.list.details.map(x => {
+            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(x));
+            return 0;
+            
+          }).reduce((acc,x) => Number(acc) + Number(x)));//do the calc when they are in group
         }
       }
     },
@@ -215,16 +234,19 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Math.round(Number(this.list.details.map(x => x.total).reduce((acc,x) => Number(acc) + Number(x))))
+          return Number(this.list.details.map(x => x.total).reduce((acc,x) => Number(acc) + Number(x)))
         }else{
-          return 0 ;//do the calc when they are in group
+          return Number(this.list.details.map(x => {
+            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(x));
+            return 0;
+          }).reduce((acc,x) => Number(acc) + Number(x)));
         }
       }
     },
     filterList(){
       const self = this;
       if(this.list.group.length > 0 && this.searchString.length > 0){
-        var str = self.searchString.toString();
+        var str = self.searchString.toLowerCase();
         var patt = new RegExp(str,'g');
        return this.list.group.filter(x =>{ 
             // console.log(patt.test(x.groupName.toLowerCase()));
@@ -238,7 +260,7 @@ export default {
     filterDetailsList(){
       const self = this;
       if(this.list.details.length > 0 && this.searchString.length > 0 && !self.detailsActive.hasOwnProperty('groupName')){
-        var str = self.searchString.toString();
+        var str = self.searchString.toLowerCase();
         var patt = new RegExp(str,'g');
         if(this.list.details[0].hasOwnProperty('groupName')){
             return this.list.details.filter(x =>{ 
@@ -261,7 +283,7 @@ export default {
           }
       }else{ //this will pass when filter applied 
         if(self.detailsActive.hasOwnProperty('groupName')){
-          var str = self.searchString.toString();
+          var str = self.searchString.toLowerCase();
           var patt = new RegExp(str,'g');
           if(self.searchString.length > 0 ){
             return self.detailsActiveList.filter(x => patt.test(x.customerName.toLowerCase()))
@@ -272,7 +294,35 @@ export default {
           return self.list.details
         }
       }
-    }
+    },
+    DetailsList(){
+      const self = this;
+      const fo = this.ActiveDetailsFilter;
+      if(this.list.details.length > 0){
+        if(this.ActiveDetailsFilter.hasOwnProperty('groupName')){
+          return this.list.details.map(x => {
+            if(x.bills.length > 0){
+              x.bills.filter(y=>{
+               return (fo.groupName === 'Paid') ? Number(y.pending) === 0  : Number(y.pending) > 0 ;
+              });
+            }
+            return x
+          });
+        }else{
+          if(fo.hasOwnProperty('groupName')){
+            return this.list.details.map(x =>{
+
+            })
+          }else{
+            return this.list.details
+          }
+          
+        }
+        
+      }else{
+        return []
+      }
+    },
   },
   
   props: {
@@ -305,15 +355,29 @@ export default {
     ActiveView: {
       type: String,
       default : "meta"
+    },
+    ActiveMetaData: {
+      type : Object,
+      default: function(){
+        return {id: "2", groupName: "Hotel", filterMap: ["4", "5"]}
+      }
+    },
+    ActiveMetaDataList: {
+      type: Array,
+      default: function(){
+        return []
+      }
     }
+
   },
   data() {
     return {
       detailsFilter: [
-        {groupName: "Monthly",id:1},
+        // {groupName: "Monthly",id:1},
         {groupName: "Paid",id:2},
         {groupName: "Pending",id:3},
       ],
+      ActiveDetailsFilter: {},
       activeListItem: {},
       filterDate: {
         from: (function(){ 
@@ -349,7 +413,7 @@ export default {
               }
             }).reverse().join('');
           }else{
-            output = el.innerHTML
+            output = str
           }
           el.innerHTML = '₹' + output + decm;
         }
@@ -361,6 +425,8 @@ export default {
       this.$emit('back');
       this.activeListItem = {}
       this.searchString = '';
+      this.ActiveDetailsFilter = {};
+
     },
     getReport: function(){
       const self = this;
@@ -397,6 +463,17 @@ export default {
           self.detailsActive = data;
       }
     
+   },
+
+   GroupEmit: function(data){
+     const self = this;
+     this.$emit('GroupEmitted',{filterData:data,active: self.activeMeta});
+   },
+   
+   FilterEmit: function(data){
+     //filter the incoming list of details
+      this.ActiveDetailsFilter = {...data};
+
    },
    setDate: function(){
      const self = this;
