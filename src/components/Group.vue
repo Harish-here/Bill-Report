@@ -22,6 +22,7 @@
             <li class='cursor p5-10' v-for='i in filterData' :key='i.id' @click="sendFilter(i)"
                 :class='{"act-li": (activeFilter.hasOwnProperty("id") && (i.id == activeFilter.id)) }'
             >{{i.groupName}}</li>
+            <li class='cursor p5-10 clear-filter' @click='sendFilter(activeFilter)'>Clear Grouping</li>
           </ul>
        </div>
      </div>
@@ -36,6 +37,7 @@
             <li class='cursor p5-10' v-for='i in FinaceFilter' :key='i.id' @click="sendFinanceFilter(i)"
                 :class='{"act-li": (activeFinanceFilter.hasOwnProperty("id") && (i.id == activeFinanceFilter.id)) }'
             >{{i.groupName}}</li>
+            <li class='cursor p5-10 clear-filter' @click='sendFinanceFilter(activeFinanceFilter)'>Clear Filter</li>
           </ul>
        </div>
      </div>
@@ -107,5 +109,11 @@ export default {
 }
 ul.dropdown-menu > li{
   padding:5px;
+}
+.clear-filter{
+    background-color: #e7e7e7 !important;
+    text-align: center;
+    color: #463f3f !important;
+    font-weight: 600;
 }
 </style>

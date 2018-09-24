@@ -5,8 +5,8 @@
         <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
           <i class="fa fa-chevron-left f4" aria-hidden="true"></i>
         </button>
-        <span class='_flx_full flex flex-wrap f4'>
-            {{ (ActiveView !== "meta") ? (ActiveMetaData.hasOwnProperty('groupName' && ActiveView !== "group") ? ActiveMetaData.groupName+ ' > ' : '') + activeMeta.groupName : "Billing Report" }}
+        <span class='_flx_full f4'>
+            {{ (ActiveView === 'details') ? ActiveMetaData.groupName : "" }} <i v-if='ActiveView === "details"' class="fa fa-chevron-right f5" aria-hidden="true"></i> {{ (ActiveView !== "meta") ?  activeMeta.groupName : "Billing Report" }}
             <i  v-if='ActiveView === "group" || ActiveView === "details"' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
         </span>
         
@@ -86,22 +86,25 @@
     <span v-if='ActiveView === "details"'>
       <ul class='pa fl w100 h-fix y-flow'>
         <!-- details list without filter -->
-        <li class='fl w100  cursor' v-if='!DetailsList[0].hasOwnProperty("groupName")' v-for='i in DetailsList' :key='i.bookingId' @click='getData(i,"getBill")' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
-          
-          <div class="fl w100 p5-10">
-            <div class='fl w50 p2-4'><span class="label label-primary f11">{{i.bookingVoucherId}}</span></div>
-            <div class='fl w50 al-right p2-4'><span class='gray'>{{i.date}}</span> </div>
-          </div>
-          
-          <div class="fl w100 p5-10">
-            <div class='fl w50 p2-4'>{{i.customerName}}</div>
-            <div class='fl w50 al-right p2-4 b6 black f14'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
-          </div>
-        </li>
+        <span v-if='DetailsList.length > 0 && !DetailsList[0].hasOwnProperty("groupName")'>
+          <li class='fl w100  cursor'
+              v-for='i in DetailsList' :key='i.bookingId' @click='getData(i,"getBill")'
+              :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
+            
+            <div class="fl w100 p5-10">
+              <div class='fl w50 p2-4'><span class="label label-primary f11">{{i.bookingVoucherId}}</span></div>
+              <div class='fl w50 al-right p2-4'><span class='gray'>{{i.date}}</span> </div>
+            </div>      
+            <div class="fl w100 p5-10">
+              <div class='fl w50 p2-4'>{{i.customerName}}</div>
+              <div class='fl w50 al-right p2-4 b6 black f14'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
+            </div>
+          </li>
+        </span>
         <li class='fl w100  cursor' v-else><!-- details list view with filter -->
           <div class='fl w100' v-for='i in DetailsList' :key='i'>
-            <div class='fl w100 p5-10 black b6 bg-gray center'><span class='fl w100'>{{i.groupName}}</span>
-              <div class='flex w100'>  
+            <div class='fl w100 p5-10 black  bg-gray center'><span class='b6 fl w100'>{{i.groupName}}</span>
+              <div class='flex w100'>
                 <span class='flex flex-column _flx_full'>Total<span class='reds fl' v-money>{{ getTotal(i.bills,'total') }}</span></span>
                 <span class='flex flex-column _flx_full'>Paid<span class='blue fl' style="background-color: rgb(245, 245, 245);" v-money>{{ getTotal(i.bills,'paid') }}</span></span>
                 <span class='flex flex-column _flx_full'>Pending<span class='green fl' v-money>{{ getTotal(i.bills,'pending') }}</span></span>
@@ -125,8 +128,8 @@
             
           </div>
         </li>
-        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length !== 0 && filterDetailsList.length === 0'>No Bill found</li>
-        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length === 0'>Wups! No Bill are there</li>
+        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length !== 0 && DetailsList.length === 0'>No Bill found</li>
+        <li class='fl w100 p5-10 center gray f11 br-none' v-if='DetailsList.length.length === 0'> No Bills found</li>
       </ul>
     </span>
 
@@ -143,13 +146,19 @@
       
         <div class='tc pa1 b6'>Summary</div>
         
-        <div class='flex flex-stretch f5 tc'>
+        <div class='flex flex-stretch f5 tc' v-if='ActiveView === "group"'>
          <div class='flex flex-column  _flx_full'>Total <div class='blue' v-money>{{overAllTotal}}</div></div>
          <div class='flex flex-column  _flx_full'>Paid<div class='green' v-money>{{overAllPaid}}</div></div>
          <div class='flex flex-column  _flx_full'>Pending <div class='reds' v-money>{{overAllPending}}</div></div>
         </div>
+        <div class='flex flex-stretch f5 tc' v-if='ActiveView === "details"'>
+         <div class='flex flex-column  _flx_full'>Total <div class='blue' >{{Total}}</div></div>
+         <div class='flex flex-column  _flx_full'>Paid<div class='green' >{{PaidTotal}}</div></div>
+         <div class='flex flex-column  _flx_full'>Pending <div class='reds' >{{PendingTotal}}</div></div>
+        </div>
        
     </div>
+    
 
 
   </div>
@@ -179,6 +188,34 @@ export default {
           self.detailsActiveList = self.list.details;
         }
       }
+    },
+    DetailsList: {
+      immediate: true,
+      handler: function(val){
+          const self = this;
+            let o = val,
+            pay = 0 ,
+            pending = 0 ,
+            Tot = 0 ;
+          for(let c=0;c < val.length;c++){
+            if(o[c].hasOwnProperty('groupName')){
+              if(o[c].bills.length > 0){
+                pay += Number(o[c].bills.map(x => x.paid).reduce((acc,a) => Number(acc) + Number(a)));
+                pending += Number(o[c].bills.map(x => x.pending).reduce((acc,a) => Number(acc) + Number(a)));
+                Tot += Number(o[c].bills.map(x => x.total).reduce((acc,a) => Number(acc) + Number(a)));
+              }
+            }else{
+              pay += Number(val[c].paid);
+              pending += Number(val[c].pending);
+              Tot += Number(val[c].total);
+            }
+          }
+          self.PaidTotal = self.makeMoney(pay.toFixed(2));
+          self.PendingTotal = self.makeMoney(pending.toFixed(2));
+          self.Total = self.makeMoney(Tot.toFixed(2));
+          
+          // console.log(self.PaidTotal + " " + self.PendingTotal + " " + self.Total);
+        }
     }
   },
 
@@ -195,51 +232,51 @@ export default {
     },
     overAllPaid(){
       if(this.list.group.length > 0) {
-       return this.list.group.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x)) 
+       return Number(this.list.group.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2) 
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
 
-          return Number(this.list.details.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x)))
+          return Number(this.list.details.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2)
         }else{
           return Number(this.list.details.map(x => {
             if(x.bills.length > 0){
-              return x.bills.map(y => y.paid).reduce((acc1,u) => Number(acc1) + Number(x));
+              return x.bills.map(y => y.paid).reduce((acc1,u) => Number(acc1) + Number(u));
             }else{
               return 0;
             }
             
-          }).reduce((acc,x) => Number(acc) + Number(x)));//do the calc when they are in group
+          }).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2);//do the calc when they are in group
         }
       }
     },
     overAllPending(){
      if(this.list.group.length > 0) {
-       return this.list.group.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x) )
+       return Number(this.list.group.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x) )).toFixed(2)
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Number(this.list.details.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x)))
+          return Number(this.list.details.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2);
         }else{
           return Number(this.list.details.map(x => {
-            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(x));
+            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(u));
             return 0;
             
-          }).reduce((acc,x) => Number(acc) + Number(x)));//do the calc when they are in group
+          }).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2);//do the calc when they are in group
         }
       }
     },
     overAllTotal(){
       if(this.list.group.length > 0) {
-       return this.list.group.map(x => x.total).reduce((acc,x) => Number(acc) +Number(x)) 
+       return Number(this.list.group.map(x => x.total).reduce((acc,x) => Number(acc) +Number(x))).toFixed(2) 
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Number(this.list.details.map(x => x.total).reduce((acc,x) => Number(acc) + Number(x)))
+          return Number(this.list.details.map(x => x.total).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2)
         }else{
           return Number(this.list.details.map(x => {
-            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(x));
+            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(u));
             return 0;
-          }).reduce((acc,x) => Number(acc) + Number(x)));
+          }).reduce((acc,x) => Number(acc) + Number(x))).toFixed(2);
         }
       }
     },
@@ -298,31 +335,107 @@ export default {
     DetailsList(){
       const self = this;
       const fo = this.ActiveDetailsFilter;
-      if(this.list.details.length > 0){
-        if(this.ActiveDetailsFilter.hasOwnProperty('groupName')){
-          return this.list.details.map(x => {
-            if(x.bills.length > 0){
-              x.bills.filter(y=>{
-               return (fo.groupName === 'Paid') ? Number(y.pending) === 0  : Number(y.pending) > 0 ;
-              });
-            }
-            return x
-          });
-        }else{
-          if(fo.hasOwnProperty('groupName')){
-            return this.list.details.map(x =>{
+      // if(this.list.details.length > 0){
+      //   if(fo.hasOwnProperty('groupName')){
+      //      return this.list.de
+      //   }else{
 
-            })
+      //   }
+      // }else{
+      //   return []
+      // }
+
+      if(this.list.details.length > 0){
+        if(this.list.details[0].hasOwnProperty('groupName')){
+          //do the filter when they are in group
+          if(fo.hasOwnProperty('groupName')){
+            return this.list.details.map(x => {
+              let temp = []
+              if(x.bills.length > 0){
+                temp = x.bills.filter(y => {
+                  if(fo.groupName == 'Pending'){
+                    return  Number(y.pending) > 0 
+                  }else{
+                    return Number(y.pending) == 0
+                  }
+                });
+              }
+              return {
+                groupName: x.groupName,
+                bills: temp,
+              }
+            });
           }else{
             return this.list.details
           }
-          
+        }else{
+          //do the filter when they are not in group
+          if(fo.hasOwnProperty('groupName')){
+            return this.list.details.filter(y =>{
+              return (fo.groupName == 'Pending') ? y.pending > 0 : y.paid == y.total;
+            });
+          }else{
+            return this.list.details
+          }
         }
-        
       }else{
         return []
+      } 
+    },
+    DetailsPaid(){
+      const self = this;
+     if(self.DetailsList.length > 0){
+        if(self.DetailsList[0].hasOwnProperty('groupName')){
+          return Number(self.DetailsList.map(x => {
+            if(x.bills.length > 0){
+             return Number(x.bills.map(y => y.paid).reduce((acc,val) => Number(acc) + Number(val)))
+            }else{
+              return 0
+            }
+          }).reduce((a,b) => Number(a) + Number(b))).toFixed(2);
+        }else{
+          return Number(self.DetailsList.map(x => x.paid).reduce((acc,val) => Number(acc) + Number(val))).toFixed(2)
+        }
+      }else{
+        return 0;
       }
     },
+    DetailsPending(){
+       const self = this;
+        if(self.DetailsList.length > 0){
+            if(self.DetailsList[0].hasOwnProperty('groupName')){
+              return Number(self.DetailsList.map(x => {
+                if(x.bills.length > 0){
+                return Number(x.bills.map(y => y.pending).reduce((acc,val) => Number(acc) + Number(val)))
+                }else{
+                  return 0
+                }
+              }).reduce((a,b) => Number(a) + Number(b))).toFixed(2);
+            }else{
+              return Number(self.DetailsList.map(x => x.pending).reduce((acc,val) => Number(acc) + Number(val))).toFixed(2)
+            }
+          }else{
+            return 0;
+          }
+    },
+    DetailsTotal(){
+          const self = this;
+        if(self.DetailsList.length > 0){
+            if(self.DetailsList[0].hasOwnProperty('groupName')){
+              return Number(self.DetailsList.map(x => {
+                if(x.bills.length > 0){
+                return Number(x.bills.map(y => y.total).reduce((acc,val) => Number(acc) + Number(val)))
+                }else{
+                  return 0
+                }
+              }).reduce((a,b) => Number(a) + Number(b))).toFixed(2);
+            }else{
+              return Number(self.DetailsList.map(x => x.total).reduce((acc,val) => Number(acc) + Number(val))).toFixed(2)
+            }
+          }else{
+            return 0;
+          }
+      }
   },
   
   props: {
@@ -390,7 +503,10 @@ export default {
       searchString: "",
       holderListData:[],
       detailsActive: '',
-      detailsActiveList:[]
+      detailsActiveList:[],
+      PaidTotal : 0,
+      PendingTotal: 0,
+      Total: 0
     };
   },
 
@@ -427,6 +543,47 @@ export default {
       this.searchString = '';
       this.ActiveDetailsFilter = {};
 
+    },
+
+    makeMoney : function(el){
+        var str = el.toString();
+        var output,
+            decm = "";
+        if(str.includes('.')){
+          decm ='.' + str.split('.')[1];
+          str = str.split('.')[0];
+        }
+          if( !isNaN(str) && str.toString().length >= 4 ){
+            output = str.split('').reverse().map((x,i)=>{
+              if(i >1 && i%2 !== 0){
+                return  x  + ','
+              }else{
+                return x
+              }
+            }).reverse().join('');
+          }else{
+            output = str
+          }
+          let money = '₹' + output + decm;
+          return money
+        },
+
+    calculate: function(type){
+     if(this.list.details.length > 0){
+        if(this.list.details[0].hasOwnProperty('groupName')){
+          return this.list.details.map(x => {
+            if(x.bills.length > 0){
+             return x.bills.map(y => y['paid']).reduce((acc,val) => Number(acc) + Number(val))
+            }else{
+              return 0
+            }
+          }).reduce((a,b) => Number(a) + Number(b));
+        }else{
+          return this.list.details.map(x => x['paid']).reduce((acc,val) => Number(acc) + Number(val))
+        }
+      }else{
+        return 0;
+      }
     },
     getReport: function(){
       const self = this;
@@ -472,7 +629,7 @@ export default {
    
    FilterEmit: function(data){
      //filter the incoming list of details
-      this.ActiveDetailsFilter = {...data};
+      this.ActiveDetailsFilter = data;
 
    },
    setDate: function(){

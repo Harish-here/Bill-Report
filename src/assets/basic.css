@@ -28,7 +28,7 @@ hr{ margin-bottom:0px !important; }
 .w50{ width : 50%; }
 .w60{ width : 60%; }
 .w100{ width : 100%; }
-.h-fix{height:441px;}
+.h-fix{height:441px !important;}
 .h-fix-g{height:424px;}
 .h-head{height: 110px;}
 .h-75{height: 75vh; }
@@ -216,4 +216,8 @@ hr{ margin-bottom:0px !important; }
   .over{
 	  height: 550px;
 	  overflow: auto;
+  }
+
+  .myModal2{
+	  left: calc(100% - 45%);
   }

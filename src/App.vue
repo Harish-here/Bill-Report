@@ -26,12 +26,18 @@
     <div class='w50' v-if='billData !== null'>
        <div class='fl w100 pa2 br-gray b6 f14'>
           Bill Details
-          <div class='flex fr items-baseline w-20'> 
-            <a target='_blank' v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf/"+bid'>
-              <i class="fa fa-file-pdf-o fr cursor" title='Print the Bill'></i>
-            </a>
-            <a @click='getAttach' data-toggle='modal'  data-target='.myModal2'>View Attachments</a>
-            <i v-if='reportData !== null' @click='getPdf' class="fa fa-print cursor" title='Print the Bill'></i>
+          <div class='flex fr items-baseline w-40'>
+            <div class='fl w-50'>
+              <a @click='getAttach' data-toggle='modal'  data-target='.myModal2' class='self-start'>View Attachments</a>
+              <i v-if='reportData !== null' @click='getPdf' class="fa fa-print cursor" title='Print the Bill'></i>
+            </div>
+            <div class='fr w-40'> 
+              <a target='_blank' v-if='bid !== null' :href='"http://www.hobse.com/demo/index.php/customer/invoice/pdf/"+bid' class='self-end'>
+                <i class="fa fa-file-pdf-o cursor" title='Print the Bill'></i>
+                Get as PDF
+              </a>
+            </div>
+
           </div>
         </div>
        <div class='fl w100 y-flow h-100 pa3' style='height:540px;border-right:1px solid #e7e7e7;'  v-html='billData'>
@@ -137,7 +143,7 @@ export default {
       download(f,p)
     },
     somethingWentWrong: function(){
-      alert('Sorry, something went wrong Please try again!');
+      alert('Services currently unavailable due to network issues. Please Refresh the page or login again');
     },
     createCSV: function(JSONData, ReportTitle, ShowLabel){
       //snippet from third party to create CSV
@@ -261,9 +267,11 @@ export default {
     billList: function(data){ //getting the bill list based on the group
     const self = this;
     self.billData = null;
+    self.billVisible = false;
+    this.activeGroupFilter = {};
       this.getList({url:api.getDetailsList,param:{data: data,meta: self.active,filter: self.activeGroupFilter}},function(recData){
         self.tryNcatch(function(){
-          self.listDetails = JSON.parse(recData);
+          self.listDetails = JSON.parse(recData.trim());
           self.activeGroup = data;
           self.billVisible = true;
         })
@@ -274,7 +282,7 @@ export default {
       const self = this;
         this.getList({url:api.getGroupList,param:data},function(recData){
            self.tryNcatch(function(){
-             self.listGroup = JSON.parse(recData);  
+             self.listGroup = JSON.parse(recData.trim());  
              self.active = data;
              self.view = 'group';
            });      
@@ -297,7 +305,7 @@ export default {
         if(this.listGroup.length > 0){
               this.getList({url:api.getGroupList,param:sendData},function(recData){
                   self.tryNcatch(function(){
-                    self.listGroup = JSON.parse(recData);  
+                    self.listGroup = JSON.parse(recData.trim());  
                    // self.active = data;
                     self.view = 'group';
                   });      
@@ -309,9 +317,13 @@ export default {
       this.activeGroupFilter = data.filterData;//settig the group filter
       let combineFilter = Object.assign(data.filterData,data.filterDate);
       if(data.active.hasOwnProperty('groupName')){
+              // self.listDetails = [];
         this.getList({url:api.getDetailsList,param:{data: data.active,meta: self.active,filter: combineFilter}},function(recvData){ 
           //setting the bill list
-              self.listDetails = JSON.parse(recvData); 
+              self.listDetails = JSON.parse(recvData.trim());
+              self.activeGroupFilter = {}
+              self.billVisible =  false;//for recompute of the properties
+              self.billVisible =  true;
         });
       }
     },
@@ -323,7 +335,7 @@ export default {
         func();
       }catch(e){
         // console.log(e.message);
-        alert('Sorry, something went wrong Try again later');
+        alert('Services currently unavailable due to network issues. Please Refresh the page or login again');
       };
     },
     getAttach: function(){
@@ -339,7 +351,7 @@ export default {
          self.ImgHotels = [];
          self.ImgCorp = [];
        }
-      }).fail(x => alert('Sorry, something went wrong Try again later'));
+      }).fail(x => alert('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 
   },
