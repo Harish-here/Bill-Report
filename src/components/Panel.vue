@@ -5,21 +5,21 @@
         <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
           <i class="fa fa-chevron-left f4" aria-hidden="true"></i>
         </button>
-        <span class='_flx_full f4'>
+        <span class='_flx_full f4 p5'>
             {{ (ActiveView === 'details') ? ActiveMetaData.groupName : "" }} <i v-if='ActiveView === "details"' class="fa fa-chevron-right f5" aria-hidden="true"></i> {{ (ActiveView !== "meta") ?  activeMeta.groupName : "Billing Report" }}
-            <i  v-if='ActiveView === "group" || ActiveView === "details"' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
+            <i  v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
         </span>
         
       </div>
       <!--datepicker -->
-      <div class='pa1 tc' v-if='ActiveView === "group" || ActiveView === "meta"'>
+      <div class='p10 tc' v-if='ActiveView === "group" || ActiveView === "meta"'>
         <datepicker @input='setDate' calendar-class='w200' wrapper-class='di' input-class=' w40 btn btn-default btn-xs'	 v-model='filterDate.from'></datepicker> 
-        <div class='di w20 gray p5-10'>to</div>
+        <div class='di w20  p5-10'>to</div>
         <datepicker  @input='setDate' calendar-class='w200' wrapper-class='di' input-class='w40 btn btn-default btn-xs'	 v-model='filterDate.to' :disabled-dates='{to: filterDate.from}'></datepicker> 
 
       </div>
        <!-- Number of transction label -->
-      <div class='pa1 tc' v-if='ActiveView === "details"'>
+      <div class='p10 tc' v-if='ActiveView === "details"'>
         
           Number of transactions - 
           {{ (list.details.length > 0 && 
@@ -31,9 +31,9 @@
       </div>
        <!-- search text box -->
       <div class='tc pa2' v-if='ActiveView === "group"'>
-          <div class='br-clr w100'> 
-            <i class="fa fa-search dib" aria-hidden="true"></i>
-            <input class='pa2 b5 dib br-white tc' type='text' v-model='searchString' @input='saySmthn' :placeholder="'Search in '+activeMeta.groupName">
+          <div class='br-clr w100 flex'> 
+            <!-- <i class="fa fa-search dib" aria-hidden="true"></i> -->
+            <input class='pa2 b5 w-100 br-white tc' type='text' v-model='searchString' @input='saySmthn' :placeholder="'Search in '+activeMeta.groupName">
           </div>
       </div>
       <!--- group filter -->
@@ -48,35 +48,35 @@
 
     <!-- result label -->
     <div class='p2-4' v-if='searchString.length > 0'>
-      <span class='gray'> Results for </span> "<b>{{ searchString }}</b>" <button class='fr f14 close' @click="searchString=''">clear</button>
+      <span class='gray'> Results for </span> "<b>{{ searchString }}</b>" <button class='fr f12 close' @click="searchString=''">clear</button>
     </div>
     <!-- Group listing -->
     <span v-if='ActiveView === "group"'>
       <ul class='pa h-fix-g y-flow'>
           <li class='p5-10 cursor' v-for='i in filterList' :key='i.id' @click='getData(i,"getBillList")' :class='{"active-item":(activeListItem.id !== undefined && activeListItem.id === i.id)}'>
-            <div class='black tc b6'>{{i.groupName}}</div>
+            <div class='black tc b6 p10'>{{i.groupName}}</div>
             <!-- <i class="fa fa-chevron-right fr f14" aria-hidden="true"></i> -->
             <i v-if='(activeListItem.hasOwnProperty("id") && activeListItem.id === i.id)' class="fa fa-chevron-right fr f14" aria-hidden="true"></i>
             <div>
-              <div class='flex justify-around pa1 gray tc'>
+              <div class='flex justify-around pa1  tc'>
                 <div class='flex flex-column'>
-                  <span class='f6'>Total</span>
-                  <span class='navy b6' v-money>{{i.total}}</span>
+                  <span class=''>Total</span>
+                  <span class='navy b6 p5' v-money>{{i.total}}</span>
                 </div>
                 <div class='flex flex-column'>
-                  <span class='f6'>Paid</span>
-                  <span class='green b6' v-money>{{i.paid}}</span>
+                  <span class=''>Paid</span>
+                  <span class='green b6 p5' v-money>{{i.paid}}</span>
                 </div>
                 <div class='flex flex-column'>
-                  <span class='f6'>Pending</span>
-                  <span class='light-red b6' v-money>{{i.pending}}</span>
+                  <span class=''>Pending</span>
+                  <span class='light-red b6 p5' v-money>{{i.pending}}</span>
                 </div>
               </div>
             
             </div>
           </li>
-          <li class=' p5-10 tc gray f11 br-none' v-if='list.group.length !== 0 && filterList.length === 0'>No matches found</li>
-          <li class=" p5-10 tc gray f11 br-none" v-if='list.group.length === 0'>No report found</li>
+          <li class=' p10 tc  br-none no-bill' v-if='list.group.length !== 0 && filterList.length === 0'>No Reports found</li>
+          <li class=" p10 tc  br-none no-bill" v-if='list.group.length === 0'>No Reports found</li>
       </ul>
     </span>
     
@@ -91,45 +91,45 @@
               v-for='i in DetailsList' :key='i.bookingId' @click='getData(i,"getBill")'
               :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
             
-            <div class="fl w100 p5-10">
+            <div class="fl w100 p10">
               <div class='fl w50 p2-4'><span class="label label-primary f11">{{i.bookingVoucherId}}</span></div>
-              <div class='fl w50 al-right p2-4'><span class='gray'>{{i.date}}</span> </div>
+              <div class='fl w50 al-right p2-4'><span class=''>{{i.date}}</span> </div>
             </div>      
-            <div class="fl w100 p5-10">
+            <div class="fl w100 p10">
               <div class='fl w50 p2-4'>{{i.customerName}}</div>
-              <div class='fl w50 al-right p2-4 b6 black f14'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
+              <div class='fl w50 al-right p2-4 b6 black f12'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
             </div>
           </li>
         </span>
         <li class='fl w100  cursor' v-else><!-- details list view with filter -->
           <div class='fl w100' v-for='i in DetailsList' :key='i'>
-            <div class='fl w100 p5-10 black  bg-gray center'><span class='b6 fl w100'>{{i.groupName}}</span>
-              <div class='flex w100'>
+            <div class='fl w100 p5-10 black  bg-gray center'><span class='b6 fl w100 p5'>{{i.groupName}}</span>
+              <div class='flex w100' v-if="getTotal(i.bills,'total') > 0">
                 <span class='flex flex-column _flx_full'>Total<span class='reds fl' v-money>{{ getTotal(i.bills,'total') }}</span></span>
                 <span class='flex flex-column _flx_full'>Paid<span class='blue fl' style="background-color: rgb(245, 245, 245);" v-money>{{ getTotal(i.bills,'paid') }}</span></span>
                 <span class='flex flex-column _flx_full'>Pending<span class='green fl' v-money>{{ getTotal(i.bills,'pending') }}</span></span>
               </div>
             </div>
             <div class='fl w100 cursor groupList p2-4' v-for='y in i.bills' :key='y.bookingId' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}' @click='getData(y,"getBill")'>
-                <div class="fl w100 p2-4">
+                <div class="fl w100 p10">
                   <div class='fl w50 p2-4'><span class="label label-primary f11">{{y.bookingVoucherId}}</span></div>
-                  <div class='fl w50 al-right p2-4'><span class='gray'>{{y.date}}</span> </div>
+                  <div class='fl w50 al-right p2-4'><span class=''>{{y.date}}</span> </div>
                 </div>
                 
-                <div class="fl w100 p2-4">
+                <div class="fl w100 p10">
                   <div class='fl w50 p2-4'>{{y.customerName}} </div>
-                  <div class='fl w50 al-right p2-4 b6 black f14'>
+                  <div class='fl w50 al-right p2-4 b6 black f12'>
                     <span class='badge badge-primary' v-money>{{y.total}}</span>
                   </div>
                 </div>
             </div>
-            <div class='fl w100 p5-10 center gray f11' v-if='i.bills.length === 0'>No Bills found</div>
+            <div class='fl w100 p10 center no-bill' v-if='i.bills.length === 0'>No Bills found</div>
             <!-- bill strip end -->
             
           </div>
         </li>
-        <li class='fl w100 p5-10 center gray f11 br-none' v-if='list.details.length !== 0 && DetailsList.length === 0'>No Bill found</li>
-        <li class='fl w100 p5-10 center gray f11 br-none' v-if='DetailsList.length.length === 0'> No Bills found</li>
+        <li class='fl w100 p10 center br-none no-bill' v-if='list.details.length !== 0 && DetailsList.length === 0'>No Bills found</li>
+        <!-- <li class='fl w100 p10 center  br-none' v-if='DetailsList.length.length === 0'> No Bills found</li> -->
       </ul>
     </span>
 
@@ -284,10 +284,10 @@ export default {
       const self = this;
       if(this.list.group.length > 0 && this.searchString.length > 0){
         var str = self.searchString.toLowerCase();
-        var patt = new RegExp(str,'g');
+        // var patt = new RegExp(str,'g');
        return this.list.group.filter(x =>{ 
             // console.log(patt.test(x.groupName.toLowerCase()));
-            return patt.test(x.groupName.toLowerCase()) 
+            return x.groupName.toLowerCase().includes(str) 
             });
       }else{
         return self.list.group
@@ -594,7 +594,7 @@ export default {
     },
     getTotal: function(arr,obj){
       if(arr.length > 0){
-      return arr.map(x => x[obj]).reduce((acc,item) => Number(acc) + Number(item))
+      return Number(arr.map(x => x[obj]).reduce((acc,item) => Number(acc) + Number(item))).toFixed(2)
       }else{
         return 0 
       }

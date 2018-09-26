@@ -24,7 +24,7 @@
     </div>
     <!-- Bill html -->
     <div class='w50' v-if='billData !== null'>
-       <div class='fl w100 pa2 br-gray b6 f14'>
+       <div class='fl w100 pa2 br-gray b6 f12'>
           Bill Details
           <div class='flex fr items-baseline w-40'>
             <div class='fl w-50'>
@@ -45,49 +45,49 @@
     </div>
     <!-- modal -->
     <div class="modal right fade myModal2"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-	<div class="modal-dialog" role="document" style='width:43%;'>
-			<div class="modal-content">
+      <div class="modal-dialog" role="document" style='width:43%;'>
+          <div class="modal-content">
 
-			<div class="modal-header">
-				<div class='p2-4'>
-          <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
-          <div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
-				</div>
-			</div>
+          <div class="modal-header">
+            <div class='p2-4'>
+              <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
+              <div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
+            </div>
+          </div>
 
-			<div id='modalContent' class="modal-body">
-        <div class='image-grid'>
-          <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-            <li class='tc gray navy h4'>Your's</li>
-            <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
-              <span class='w-100 tc'>
-                <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
-                  <img  :src='i.url' width='150'  />
-                </a>
-                <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
-              </span>
-            </li>
-            <li class='gray pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
-          </ul>
-          <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-            <li class='tc gray navy h4'>Hotel</li>
-            <li class="w-100 flex pa2 ma2 template-download" v-for='i in ImgHotels' :key='i.id'>
-              <span class='w-100 tc'>
-                <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
-                  <img  :src='i.url' width='150'  />
-                </a>
-                <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
-              </span>
-            </li>
-            <li class='gray pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
-          </ul>
-        </div>
+          <div id='modalContent' class="modal-body">
+            <div class='image-grid'>
+              <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
+                <li class='tc gray navy h4'>Your's</li>
+                <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
+                  <span class='w-100 tc'>
+                    <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
+                      <img  :src='i.url' width='150'  />
+                    </a>
+                    <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
+                  </span>
+                </li>
+                <li class='gray pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
+              </ul>
+              <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
+                <li class='tc gray navy h4'>Hotel</li>
+                <li class="w-100 flex pa2 ma2 template-download" v-for='i in ImgHotels' :key='i.id'>
+                  <span class='w-100 tc'>
+                    <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
+                      <img  :src='i.url' width='150'  />
+                    </a>
+                    <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
+                  </span>
+                </li>
+                <li class='gray pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
+              </ul>
+            </div>
 
-			</div>
+          </div>
 
-			</div><!-- modal-content -->
-	</div><!-- modal-dialog -->
-</div> <!-- modal end -->  
+          </div><!-- modal-content -->
+      </div><!-- modal-dialog -->
+    </div> <!-- modal end -->  
     
   </div>
 </template>
@@ -306,7 +306,7 @@ export default {
               this.getList({url:api.getGroupList,param:sendData},function(recData){
                   self.tryNcatch(function(){
                     self.listGroup = JSON.parse(recData.trim());  
-                   // self.active = data;
+                   self.active = data;
                     self.view = 'group';
                   });      
                 });
