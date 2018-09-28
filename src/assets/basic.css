@@ -21,6 +21,7 @@ hr{ margin-bottom:0px !important; }
 .w20{width : 20%;}
 .w25{width : 25%;}
 .w30{width : 30%;}
+.w35{width : 35%;}
 .w40{width : 40%;}
 .w70{width : 70%;}
 .w33{width: 33.33%;}
@@ -31,7 +32,7 @@ hr{ margin-bottom:0px !important; }
 .w60{ width : 60%; }
 .w100{ width : 100%; }
 .h-fix{height:441px !important;}
-.h-fix-g{height:424px;}
+.h-fix-g{height:466px;}
 .h-head{height: 110px;}
 .h-75{height: 75vh; }
 .h-60{height: 60vh; }
@@ -51,7 +52,7 @@ hr{ margin-bottom:0px !important; }
 /** font */
 .roboto{font-family: 'Roboto', sans-serif;font-size:21px;}
 /* ---- atomic  -----*/
-
+.p1{ padding: 1rem;}
 .pl-25{padding-left:25px; }
 .mr-67{margin-right: 67px;}
 .pl-40{padding-left:40px;}
@@ -71,7 +72,7 @@ hr{ margin-bottom:0px !important; }
 /* ---- padding  -----*/
 .p2-4{padding: 2px 4px;}
 .p5-10{ padding:5px 10px; }
-.p20-40{ padding:20px 40px; }
+.p20-40{ padding:40px; }
 .p10-20{padding : 10px 20px;}
 .p10{ padding: 10px}
 .p5{ padding: 5px}

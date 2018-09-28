@@ -11,6 +11,7 @@ export default  {
     getReport: decide({local:'http://localhost',prod:'http://www.hobse.com/demo/index.php/customer/invoice/getReport'}),
     getReportPdf: 'http://www.hobse.com/demo/index.php/customer/invoice/getReportPdf',
     getAttach: 'http://www.hobse.com/demo/index.php/admin/booking/billList/',
+    getTravel: 'http://www.hobse.com/demo/index.php/customer/booking/resstatus.html?vid='
 }
 
 

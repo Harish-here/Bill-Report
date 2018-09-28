@@ -1,9 +1,20 @@
 <template>
   <div id="app" class='flex'>
     <div class='w25'>
-      <Panel :list='listData'
+      <Panel :list='{meta:listMeta,group: [],details: []}'
              :activeMeta='active' 
-             :ActiveView='view'
+             ActiveView='meta'
+             @hadDate='setFilterDate' 
+             @getBillGroup='billGroup'
+             @getBillList='billList'  
+             @back='backs'
+             @EmitDate='setDate'  
+             @hadFilter='setGroupFilter' />
+    </div>
+    <div class='w35' v-if='view == "group"'>
+      <Panel :list='{meta:[],group: listGroup,details: []}'
+             :activeMeta='active' 
+             ActiveView='group'
              @getReport='report'
              @hadDate='setFilterDate' 
              @getBillGroup='billGroup'
@@ -12,7 +23,7 @@
              @hadFilter='setGroupFilter' />
     </div>
     
-    <div class='w25' v-if='billVisible'>
+    <div class='w40' v-if='billVisible'>
       <Panel :activeMeta='activeGroup'
              :ActiveMetaData='active'
              :ActiveMetaDataList='listMeta'
@@ -23,7 +34,7 @@
              :list='{meta:[],group: [],details:listDetails}'/>
     </div>
     <!-- Bill html -->
-    <div class='w50' v-if='billData !== null'>
+    <div class='w50' v-if='false'>
        <div class='fl w100 pa2 br-gray b6 f12'>
           Bill Details
           <div class='flex fr items-baseline w-40'>
@@ -56,6 +67,7 @@
           </div>
 
           <div id='modalContent' class="modal-body">
+            <div id='bill-area' class='pa2' v-html='billData'></div>
             <div class='image-grid'>
               <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
                 <li class='tc gray navy h4'>Your's</li>
@@ -127,9 +139,17 @@ export default {
       ImgHolder: {},
       ImgHotels: [],
       ImgCorp: [],
+      activeFrom: '',
+      activeTo: '',
+      currentMeta: {},
+      currentGroup:{}
     }
   },
   methods: {
+    setDate: function(data){
+      this.activeFrom = data.from;
+      this.activeTo = data.to;
+    },
     backs: function(){
       this.view = 'meta',
       this.billVisible = false;
@@ -248,17 +268,37 @@ export default {
         return day + ' ' + monthNames[monthIndex] + ' ' + year;
       },
     report: function(data){//getting the consolidated report
-    const self = this;
-      
-      if(data.label === 'group') {
-        self.createCSV(data.data,'Report based on '+self.active.groupName+' '+self.formateDate(data.date.from.toString())+' - '+self.formateDate(data.date.to.toString()),true);
+     const self = this;
+      let meta = self.currentMeta.groupName;
+      if(data.from == 'group') {
+        //to get correct CSV format
+        let JSONarr = data.data.map(x => {
+            let c ={};
+            c[meta] = x.groupName;
+            c['Total'] = x.total;
+            c['Paid'] = x.paid;
+            c['Pending'] = x.pending;
+            return c
+        });
+        self.createCSV(JSONarr,'Report-based-on-'+self.currentMeta.groupName+'_'+self.formateDate(self.activeFrom)+'-'+self.formateDate(self.activeTo),true);
       }else{
         if(data.data[0]['bills'] !== undefined){
             data.data.forEach(function(x){
-              self.createCSV(x.bills,'Report based on '+x.groupName+'('+self.active.groupName+') ',true)
+              self.createCSV(x.bills,'Report-based-on-'+x.groupName+'('+self.active.groupName+') ',true)
             });
         }else{
-          self.createCSV(data.data,'Report based on '+self.activeGroup.groupName+' ',true)
+          let group = self.currentGroup.groupName;
+          let JSONarr = data.data.map(x => {
+            let c = {};
+            c['Traveller'] = x.customerName;
+            c['Voucher_No'] = x.bookingVoucherId;
+            c['Total'] = x.total;
+            c['Paid'] = x.paid
+            c['Pending'] = x.pending;
+            c['Booking_Date'] = x.date;
+            return c
+          });
+          self.createCSV(JSONarr,'Report-based-on-'+self.currentGroup.groupName+'('+self.currentMeta.groupName+')_'+self.formateDate(self.activeFrom)+'-'+self.formateDate(self.activeTo),true)
         }
       }
       
@@ -273,6 +313,8 @@ export default {
         self.tryNcatch(function(){
           self.listDetails = JSON.parse(recData.trim());
           self.activeGroup = data;
+          delete data.to;delete data.from;
+          self.currentGroup = data;
           self.billVisible = true;
         })
       });
@@ -280,33 +322,38 @@ export default {
       },
     billGroup: function(data){ //gettin the group list
       const self = this;
+      // this.backs();
         this.getList({url:api.getGroupList,param:data},function(recData){
            self.tryNcatch(function(){
              self.listGroup = JSON.parse(recData.trim());  
              self.active = data;
              self.view = 'group';
+             self.currentMeta = data;
            });      
         });
 
        },
     get: function(data){
       const self = this;
-      this.getList({url: api.getBillPage+data.bookingId+'/1',param:{id:''}},function(recData){
+      this.getList({url: api.getTravel + data.bookingVoucherId + '&hsid=&nid=ZpSa',param:{id:''}},function(recData){
          self.reportData = null;
         self.billData = recData;
-        self.bid = data.bookingId;
+        self.bid = data.bookingVoucherId;
+        $('.myModal2').modal()
       });
     },
     setFilterDate: function(data){
       const self = this;
       this.billVisible = false;
       this.billData = null;
-      let sendData = Object.assign(self.active,data.filterDate);
+      let sendData = Object.assign(data.active,data.filterDate);
+      self.activeFrom = new Date(Number(data.filterDate.from)*1000);
+      self.activeTo = new Date(Number(data.filterDate.to)*1000);
         if(this.listGroup.length > 0){
               this.getList({url:api.getGroupList,param:sendData},function(recData){
                   self.tryNcatch(function(){
                     self.listGroup = JSON.parse(recData.trim());  
-                   self.active = data;
+                   self.active = data.active;
                     self.view = 'group';
                   });      
                 });

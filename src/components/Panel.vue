@@ -1,10 +1,10 @@
 <template>
   <div id="panel" class='pa flex flex-column trans' :class='{"panel-shadow":list.details.length > 0}'>
-    <div class='pa2 tc br-clr h-hea' :class='{"br-none":list.details.length > 0}' >
+    <div class='pa2 tc br-clr h-head' :class='{"br-none":list.details.length > 0}' >
       <div class='flex items-stretch'>
-        <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
+        <!-- <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
           <i class="fa fa-chevron-left f4" aria-hidden="true"></i>
-        </button>
+        </button> -->
         <span class='_flx_full f4 p5'>
             {{ (ActiveView === 'details') ? ActiveMetaData.groupName : "" }} <i v-if='ActiveView === "details"' class="fa fa-chevron-right f5" aria-hidden="true"></i> {{ (ActiveView !== "meta") ?  activeMeta.groupName : "Billing Report" }}
             <i  v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
@@ -12,14 +12,14 @@
         
       </div>
       <!--datepicker -->
-      <div class='p10 tc' v-if='ActiveView === "group" || ActiveView === "meta"'>
+      <div class='p1 tc' v-if='ActiveView === "meta"'>
         <datepicker @input='setDate' calendar-class='w200' wrapper-class='di' input-class=' w40 btn btn-default btn-xs'	 v-model='filterDate.from'></datepicker> 
         <div class='di w20  p5-10'>to</div>
         <datepicker  @input='setDate' calendar-class='w200' wrapper-class='di' input-class='w40 btn btn-default btn-xs'	 v-model='filterDate.to' :disabled-dates='{to: filterDate.from}'></datepicker> 
 
       </div>
        <!-- Number of transction label -->
-      <div class='p10 tc' v-if='ActiveView === "details"'>
+      <div class='p1 tc' v-if='ActiveView === "details"'>
         
           Number of transactions - 
           {{ (list.details.length > 0 && 
@@ -30,10 +30,10 @@
 
       </div>
        <!-- search text box -->
-      <div class='tc pa2' v-if='ActiveView === "group"'>
+      <div class='tl p1' v-if='ActiveView === "group"'>
           <div class='br-clr w100 flex'> 
             <!-- <i class="fa fa-search dib" aria-hidden="true"></i> -->
-            <input class='pa2 b5 w-100 br-white tc' type='text' v-model='searchString' @input='saySmthn' :placeholder="'Search in '+activeMeta.groupName">
+            <input class='pa2 b5 w-100 br-white' type='text' v-model='searchString' @input='saySmthn' :placeholder="'Search in '+activeMeta.groupName">
           </div>
       </div>
       <!--- group filter -->
@@ -137,7 +137,7 @@
      <span v-if=" ActiveView ==='meta' ">
       <ul class='pa  h-fix y-flow' v-if='list.meta.length > 0 && list.group.length === 0' >
         <li class='p20-40 cursor tc b6' v-for='i in list.meta' :key='i.id' @click='getData(i,"getBillGroup")'><span>{{i.groupName}}</span>
-          <i class="fa fa-chevron-right fr f14" aria-hidden="true"></i>
+          <i class="fa fa-chevron-right fr f14" aria-hidden="true" v-if='i === activeListItem'></i>
         </li>
       </ul>
     </span>
@@ -509,6 +509,9 @@ export default {
       Total: 0
     };
   },
+  mounted: function() {
+    this.$emit('EmitDate',{to: this.filterDate.to,from: this.filterDate.from})
+  },
 
   directives: {
     money:{
@@ -587,9 +590,9 @@ export default {
     },
     getReport: function(){
       const self = this;
-      (self.list.group.length > 0 && self.list.details.length === 0) ?
-      this.$emit('getReport',{data: self.list.group,date:self.filterDate,from:'group'}) :
-      this.$emit('getReport',{data: self.list.details,date:self.filterDate,from:'details'})
+      if(self.list.group.length > 0) {
+      this.$emit('getReport',{data: self.list.group,date:self.filterDate,from:'group'})}else{
+      this.$emit('getReport',{data: self.list.details,date:self.filterDate,from:'details'})}
       
     },
     getTotal: function(arr,obj){
@@ -601,9 +604,9 @@ export default {
     },
     getData: function(payLoad,type){
       
-      if(type !== 'getBillGroup'){
+      // if(type !== 'getBillGroup'){
         this.activeListItem = payLoad;//active item
-      }
+      
       
       //change time unixstamp
       let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
@@ -635,12 +638,12 @@ export default {
    setDate: function(){
      const self = this;
      //fire the date changes only when it is in group view
-      if(self.ActiveView === "group"){
+      // if(self.ActiveView === "meta"){
       //change time unixstamp
         let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
         let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
         self.$emit('hadDate',{active: self.activeListItem,filterDate: {to,from}});
-     }
+     
    }
   },
   
