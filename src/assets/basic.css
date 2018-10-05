@@ -31,7 +31,7 @@ hr{ margin-bottom:0px !important; }
 .w50{ width : 50%; }
 .w60{ width : 60%; }
 .w100{ width : 100%; }
-.h-fix{height:441px !important;}
+.h-fix{height: 464px !important;}
 .h-fix-g{height:466px;}
 .h-head{height: 110px;}
 .h-75{height: 75vh; }
@@ -126,12 +126,18 @@ hr{ margin-bottom:0px !important; }
 
 /* Ghost btn*/
 .btn-ghost{
-	/* border: 1px solid #009688; */
-	color:#009688;
+	border: 1px solid #1a73e8b8;
+	color:#1a73e8b8;
 	background-color: #fff;
 }
+.btn-ghost-act,.btn-ghost-act:focus{
+	border: 1px solid #1a73e8b8;
+	background-color:#1a73e8b8;
+	color: #fff;
+}
 .btn-ghost:hover{
-	background-color: #00b19f;
+	border: 1px solid #1a73e8b8;
+	background-color: #1a73e8b8;
 	color:#fff;
 }
 .act:hover{
@@ -227,5 +233,8 @@ hr{ margin-bottom:0px !important; }
   }
 
   .myModal2{
-	  left: calc(100% - 45%);
+	  left: calc(100% - 70%);
+  }
+  .btnprint{
+	  display: none !important;
   }

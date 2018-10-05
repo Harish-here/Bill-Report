@@ -29,7 +29,8 @@
              :ActiveMetaDataList='listMeta'
              ActiveView='details' 
              @getReport='report' 
-             @getBill='get' 
+             @getBill='get'
+             @GetAttachments='getAttach' 
              @GroupEmitted='setGroupFilter' 
              :list='{meta:[],group: [],details:listDetails}'/>
     </div>
@@ -51,26 +52,29 @@
 
           </div>
         </div>
-       <div class='fl w100 y-flow h-100 pa3' style='height:540px;border-right:1px solid #e7e7e7;'  v-html='billData'>
+       <div class='fl w100 y-flow h-100 pa3' style='height:540px;border-right:1px solid #e7e7e7;'   v-html='billData'>
        </div>
     </div>
     <!-- modal -->
     <div class="modal right fade myModal2"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-      <div class="modal-dialog" role="document" style='width:43%;'>
+      <div class="modal-dialog" role="document" style='width:70%;'>
           <div class="modal-content">
 
           <div class="modal-header">
             <div class='p2-4'>
               <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
-              <div class="modal-title f18" id="myModalLabel2">Attachemnts</div>
+              <div class="modal-title f18" id="myModalLabel2">
+                <span v-if='billData != null'>Travel Voucher</span>
+                <span v-else>Uploaded Bills</span>
+              </div>
             </div>
           </div>
 
           <div id='modalContent' class="modal-body">
-            <div id='bill-area' class='pa2' v-html='billData'></div>
-            <div class='image-grid'>
+            <div id='bill-area' class='pa2' v-if='billData != null' v-html='billData'></div>
+            <div v-if='!(billData != null)' class='image-grid'>
               <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-                <li class='tc gray navy h4'>Your's</li>
+                <li class='tc  navy h4'>Your's</li>
                 <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
                   <span class='w-100 tc'>
                     <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
@@ -79,10 +83,10 @@
                     <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
                   </span>
                 </li>
-                <li class='gray pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
+                <li class=' pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
               </ul>
               <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-                <li class='tc gray navy h4'>Hotel</li>
+                <li class='tc  navy h4'>Hotel</li>
                 <li class="w-100 flex pa2 ma2 template-download" v-for='i in ImgHotels' :key='i.id'>
                   <span class='w-100 tc'>
                     <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
@@ -91,7 +95,7 @@
                     <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
                   </span>
                 </li>
-                <li class='gray pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
+                <li class=' pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
               </ul>
             </div>
 
@@ -142,7 +146,8 @@ export default {
       activeFrom: '',
       activeTo: '',
       currentMeta: {},
-      currentGroup:{}
+      currentGroup:{},
+      activeDateType: 'booking'
     }
   },
   methods: {
@@ -283,9 +288,33 @@ export default {
         self.createCSV(JSONarr,'Report-based-on-'+self.currentMeta.groupName+'_'+self.formateDate(self.activeFrom)+'-'+self.formateDate(self.activeTo),true);
       }else{
         if(data.data[0]['bills'] !== undefined){
-            data.data.forEach(function(x){
-              self.createCSV(x.bills,'Report-based-on-'+x.groupName+'('+self.active.groupName+') ',true)
+          let group = self.currentGroup.groupName;
+          let meta = self.currentMeta.groupName;
+          let filter = self.activeGroupFilter.groupName;
+          let JSONarr = data.data.map(y => {
+            let Arr = y.bills.map(b => {
+                  let c = {};
+                  c[meta] = group;
+                  c[filter] = y.groupName;
+                  c['Traveller'] = b.customerName;
+                  c['Voucher_No'] = b.bookingVoucherId;
+                  c['Total'] = b.total;
+                  c['Paid'] = b.paid
+                  c['Pending'] = b.pending;
+                  c['Booking_Date'] = b.date;
+                  return c
             });
+              return Arr
+          });
+            let final = [];
+          for(let u=0;u < JSONarr.length;u++){
+            final = final.concat(JSONarr[u]);
+          }
+
+
+            // data.data.forEach(function(x){
+              self.createCSV(final,'Report-based-on-'+group+'('+meta+')'+'_'+self.formateDate(self.activeFrom)+'-'+self.formateDate(self.activeTo),true)
+            // });
         }else{
           let group = self.currentGroup.groupName;
           let JSONarr = data.data.map(x => {
@@ -322,6 +351,10 @@ export default {
       },
     billGroup: function(data){ //gettin the group list
       const self = this;
+      self.activeGroupFilter = {};
+      this.billVisible = false;
+      this.activeDateType = data.DateType;
+      console.log(data);
       // this.backs();
         this.getList({url:api.getGroupList,param:data},function(recData){
            self.tryNcatch(function(){
@@ -335,11 +368,13 @@ export default {
        },
     get: function(data){
       const self = this;
-      this.getList({url: api.getTravel + data.bookingVoucherId + '&hsid=&nid=ZpSa',param:{id:''}},function(recData){
+      $.get(api.getTravel + data.bookingVoucherId + '&hsid=&nid=ZpSa').done(function(recData){
          self.reportData = null;
         self.billData = recData;
         self.bid = data.bookingVoucherId;
-        $('.myModal2').modal()
+        
+        $(function(){
+        $('.myModal2').modal();});
       });
     },
     setFilterDate: function(data){
@@ -349,6 +384,7 @@ export default {
       let sendData = Object.assign(data.active,data.filterDate);
       self.activeFrom = new Date(Number(data.filterDate.from)*1000);
       self.activeTo = new Date(Number(data.filterDate.to)*1000);
+      self.activeDateType = data.filterDate.DataType;
         if(this.listGroup.length > 0){
               this.getList({url:api.getGroupList,param:sendData},function(recData){
                   self.tryNcatch(function(){
@@ -363,12 +399,13 @@ export default {
       const self = this;
       this.activeGroupFilter = data.filterData;//settig the group filter
       let combineFilter = Object.assign(data.filterData,data.filterDate);
+      self.activeDateType = data.filterDate.DataType;
       if(data.active.hasOwnProperty('groupName')){
               // self.listDetails = [];
         this.getList({url:api.getDetailsList,param:{data: data.active,meta: self.active,filter: combineFilter}},function(recvData){ 
           //setting the bill list
               self.listDetails = JSON.parse(recvData.trim());
-              self.activeGroupFilter = {}
+              // self.activeGroupFilter = {}
               self.billVisible =  false;//for recompute of the properties
               self.billVisible =  true;
         });
@@ -385,11 +422,12 @@ export default {
         alert('Services currently unavailable due to network issues. Please Refresh the page or login again');
       };
     },
-    getAttach: function(){
+    getAttach: function(id){
       const self = this;
-      $.get(api.getAttach+self.bid).done(function(data){
+      
+      $.get(api.getAttach+id).done(function(data){
        var temp = JSON.parse(data);
-       
+       self.billData = null;
        if(temp.hasOwnProperty('files')){
          self.ImgHolder = JSON.parse(data);
          self.ImgHotels = temp.files.filter(x => x.senderTypeId === '1');
@@ -398,6 +436,7 @@ export default {
          self.ImgHotels = [];
          self.ImgCorp = [];
        }
+       $('.myModal2').modal()
       }).fail(x => alert('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 

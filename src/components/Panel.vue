@@ -1,18 +1,27 @@
 <template>
   <div id="panel" class='pa flex flex-column trans' :class='{"panel-shadow":list.details.length > 0}'>
     <div class='pa2 tc br-clr h-head' :class='{"br-none":list.details.length > 0}' >
-      <div class='flex items-stretch'>
+      <div class='flex flex-column items-stretch'>
         <!-- <button class='btn btn-default btn-xs' v-if='ActiveView === "group"' @click='pushFilter'>
           <i class="fa fa-chevron-left f4" aria-hidden="true"></i>
         </button> -->
-        <span class='_flx_full f4 p5'>
+        <span class='_flx_full f4 p5' v-if='ActiveView !== "meta"'>
             {{ (ActiveView === 'details') ? ActiveMetaData.groupName : "" }} <i v-if='ActiveView === "details"' class="fa fa-chevron-right f5" aria-hidden="true"></i> {{ (ActiveView !== "meta") ?  activeMeta.groupName : "Billing Report" }}
             <i  v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)' title='export this as report' @click='getReport' class="fa fa-download pa1 f4 cursor" aria-hidden="true"></i>
         </span>
-        
+        <span style='padding:1px;' v-if='ActiveView === "meta"'>Date Type</span>
+        <span  class='_flx_full f4' v-if='ActiveView === "meta"'>
+          <span class="flex w-100 pa1">
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "checkin"}' @click='DateFilter = "checkin"'>Checkin</button>
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "checkout"}' @click='DateFilter = "checkout"'>Checkout</button>
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "booking"}' @click='DateFilter = "booking"'>Booking</button>
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "all"}' @click='DateFilter = "all"'>All</button>
+          </span>
+        </span>
+        <span style='padding:1px;' v-if='ActiveView === "meta"'>Range</span>
       </div>
       <!--datepicker -->
-      <div class='p1 tc' v-if='ActiveView === "meta"'>
+      <div class='pa1 tc' v-if='ActiveView === "meta"'>
         <datepicker @input='setDate' calendar-class='w200' wrapper-class='di' input-class=' w40 btn btn-default btn-xs'	 v-model='filterDate.from'></datepicker> 
         <div class='di w20  p5-10'>to</div>
         <datepicker  @input='setDate' calendar-class='w200' wrapper-class='di' input-class='w40 btn btn-default btn-xs'	 v-model='filterDate.to' :disabled-dates='{to: filterDate.from}'></datepicker> 
@@ -80,20 +89,19 @@
       </ul>
     </span>
     
-    
-
     <!-- details listing -->
     <span v-if='ActiveView === "details"'>
       <ul class='pa fl w100 h-fix y-flow'>
         <!-- details list without filter -->
         <span v-if='DetailsList.length > 0 && !DetailsList[0].hasOwnProperty("groupName")'>
-          <li class='fl w100  cursor'
-              v-for='i in DetailsList' :key='i.bookingId' @click='getData(i,"getBill")'
+          <li class='fl w100  '
+              v-for='i in DetailsList' :key='i.bookingId' 
               :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
             
             <div class="fl w100 p10">
-              <div class='fl w50 p2-4'><span class="label label-primary f11">{{i.bookingVoucherId}}</span></div>
-              <div class='fl w50 al-right p2-4'><span class=''>{{i.date}}</span> </div>
+              <div class='fl w25 p2-4 cursor'><span class="label label-primary f12 pa1 " @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span></div>
+              <div class="fl w25 p2-4 cursor" @click='getAttach(i.bookingId)'><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded Bills</div>
+              <div class='fr w30 al-right p2-4'><span class=''>{{i.date}}</span> </div>
             </div>      
             <div class="fl w100 p10">
               <div class='fl w50 p2-4'>{{i.customerName}}</div>
@@ -101,7 +109,7 @@
             </div>
           </li>
         </span>
-        <li class='fl w100  cursor' v-else><!-- details list view with filter -->
+        <li class='fl w100' v-else><!-- details list view with filter -->
           <div class='fl w100' v-for='i in DetailsList' :key='i'>
             <div class='fl w100 p5-10 black  bg-gray center'><span class='b6 fl w100 p5'>{{i.groupName}}</span>
               <div class='flex w100' v-if="getTotal(i.bills,'total') > 0">
@@ -110,10 +118,11 @@
                 <span class='flex flex-column _flx_full'>Pending<span class='green fl' v-money>{{ getTotal(i.bills,'pending') }}</span></span>
               </div>
             </div>
-            <div class='fl w100 cursor groupList p2-4' v-for='y in i.bills' :key='y.bookingId' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}' @click='getData(y,"getBill")'>
+            <div class='fl w100  groupList p2-4' v-for='y in i.bills' :key='y.bookingId' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}' @click='getData(y,"getBill")'>
                 <div class="fl w100 p10">
-                  <div class='fl w50 p2-4'><span class="label label-primary f11">{{y.bookingVoucherId}}</span></div>
-                  <div class='fl w50 al-right p2-4'><span class=''>{{y.date}}</span> </div>
+                  <div class='fl w25 p2-4 cursor'><span class="label label-primary f12 pa1 cursor" @click='getData(i,"getBill")'>{{y.bookingVoucherId}}</span></div>
+                  <div class="fl w25 p2-4 cursor" @click='getAttach(i.bookingId)'><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded Bills</div>
+                  <div class='fr w30 al-right p2-4'><span class=''>{{y.date}}</span> </div>
                 </div>
                 
                 <div class="fl w100 p10">
@@ -174,7 +183,7 @@ export default {
   components: { Group  ,Datepicker },
 
   watch: {
-    'detailsActive' : function(){ //when the details filtered applied
+    'detailsActive': function(){ //when the details filtered applied
       const self = this;
       if(self.detailsActive.hasOwnProperty('groupName') && !self.list.details[0].hasOwnProperty('groupName')){
         self.detailsActiveList = self.list.details.filter(x => x[self.detailsActive.groupName.toLowerCase()] > 0 );
@@ -213,9 +222,12 @@ export default {
           self.PaidTotal = self.makeMoney(pay.toFixed(2));
           self.PendingTotal = self.makeMoney(pending.toFixed(2));
           self.Total = self.makeMoney(Tot.toFixed(2));
-          
-          // console.log(self.PaidTotal + " " + self.PendingTotal + " " + self.Total);
         }
+    },
+    DateFilter: function(){
+      if(this.activeListItem.hasOwnProperty('groupName')){
+        this.getData(this.activeListItem,'getBillGroup');
+      }
     }
   },
 
@@ -335,15 +347,6 @@ export default {
     DetailsList(){
       const self = this;
       const fo = this.ActiveDetailsFilter;
-      // if(this.list.details.length > 0){
-      //   if(fo.hasOwnProperty('groupName')){
-      //      return this.list.de
-      //   }else{
-
-      //   }
-      // }else{
-      //   return []
-      // }
 
       if(this.list.details.length > 0){
         if(this.list.details[0].hasOwnProperty('groupName')){
@@ -490,6 +493,7 @@ export default {
         {groupName: "Paid",id:2},
         {groupName: "Pending",id:3},
       ],
+      DateFilter: 'booking', 
       ActiveDetailsFilter: {},
       activeListItem: {},
       filterDate: {
@@ -548,6 +552,10 @@ export default {
 
     },
 
+    getAttach: function(id){
+      this.$emit('GetAttachments',id);
+    },
+
     makeMoney : function(el){
         var str = el.toString();
         var output,
@@ -556,7 +564,7 @@ export default {
           decm ='.' + str.split('.')[1];
           str = str.split('.')[0];
         }
-          if( !isNaN(str) && str.toString().length >= 4 ){
+          if( !isNaN(str) && str.length >= 4 ){
             output = str.split('').reverse().map((x,i)=>{
               if(i >1 && i%2 !== 0){
                 return  x  + ','
@@ -603,21 +611,20 @@ export default {
       }
     },
     getData: function(payLoad,type){
-      
+      const self = this;
       // if(type !== 'getBillGroup'){
         this.activeListItem = payLoad;//active item
-      
       
       //change time unixstamp
       let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
       let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
-      
-      this.$emit(type,Object.assign(payLoad,{to,from}));//combine the date 
+      let DateType = self.DateFilter;
+      this.$emit(type,Object.assign(payLoad,{to,from,DateType}));//combine the date 
     },
     emitFilter: function(data){
       const self = this;
       if((this.list.group.length > 0 || this.list.meta.length > 0) && this.list.details.length === 0){
-         this.$emit('hadFilter',{filterData:data,active: self.activeListItem,filterDate: self.filterDate});
+         this.$emit('hadFilter',{filterData: data,active: self.activeListItem,filterDate: self.filterDate});
       }else{
         //do the things to filter the list 
           self.detailsActive = data;
@@ -627,7 +634,7 @@ export default {
 
    GroupEmit: function(data){
      const self = this;
-     this.$emit('GroupEmitted',{filterData:data,active: self.activeMeta});
+     this.$emit('GroupEmitted',{filterData:data,active: self.activeMeta,DateType : self.DateFilter});
    },
    
    FilterEmit: function(data){
@@ -637,12 +644,12 @@ export default {
    },
    setDate: function(){
      const self = this;
-     //fire the date changes only when it is in group view
-      // if(self.ActiveView === "meta"){
-      //change time unixstamp
-        let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
-        let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
-        self.$emit('hadDate',{active: self.activeListItem,filterDate: {to,from}});
+    //fire the date changes only when it is in group view
+    //change time unixstamp
+    let to = parseInt(new Date(this.filterDate.to).getTime()/1000);
+    let from = parseInt(new Date(this.filterDate.from).getTime()/1000);
+    let DateType = self.DateFilter;
+    self.$emit('hadDate',{active: self.activeListItem,filterDate: {to,from,DateType}});
      
    }
   },
