@@ -11,11 +11,11 @@
         </span>
         <span style='padding:1px;' v-if='ActiveView === "meta"'>Date Type</span>
         <span  class='_flx_full f4' v-if='ActiveView === "meta"'>
-          <span class="flex w-100 pa1">
+          <span class="flex w-100 pa1">            
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "all"}' @click='DateFilter = "all"'>All</button>
+            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "booking"}' @click='DateFilter = "booking"'>Booking</button>
             <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "checkin"}' @click='DateFilter = "checkin"'>Checkin</button>
             <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "checkout"}' @click='DateFilter = "checkout"'>Checkout</button>
-            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "booking"}' @click='DateFilter = "booking"'>Booking</button>
-            <button class='btn btn-default btn-xs btn-ghost w-33' :class='{"btn-ghost-act" : DateFilter === "all"}' @click='DateFilter = "all"'>All</button>
           </span>
         </span>
         <span style='padding:1px;' v-if='ActiveView === "meta"'>Range</span>
@@ -99,13 +99,14 @@
               :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
             
             <div class="fl w100 p10">
-              <div class='fl w25 p2-4 cursor'><span class="label label-primary f12 pa1 " @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span></div>
-              <div class="fl w25 p2-4 cursor" @click='getAttach(i.bookingId)'><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded Bills</div>
-              <div class='fr w30 al-right p2-4'><span class=''>{{i.date}}</span> </div>
+              <div class='fl w30 p2-4 cursor'><span class="label label-primary f12 pa1 " @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span></div>
+              <div class="fl w25 p2-4 cursor" @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i> Uploaded Bills</div>
+              <div class='fl w40 al-right p2-4'><span class=''>{{i.date}}</span> </div>
             </div>      
             <div class="fl w100 p10">
-              <div class='fl w50 p2-4'>{{i.customerName}}</div>
-              <div class='fl w50 al-right p2-4 b6 black f12'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
+              <div class='fl w30 p2-4'>{{i.customerName}}</div>
+              <div class='fl w25 p2-4 cursor' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i> Travel Voucher</div>
+              <div class='fl w40 al-right p2-4 b6 black f12'><span class='badge badge-primary' v-money>{{i.total}}</span></div>
             </div>
           </li>
         </span>
@@ -120,14 +121,15 @@
             </div>
             <div class='fl w100  groupList p2-4' v-for='y in i.bills' :key='y.bookingId' :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}' @click='getData(y,"getBill")'>
                 <div class="fl w100 p10">
-                  <div class='fl w25 p2-4 cursor'><span class="label label-primary f12 pa1 cursor" @click='getData(i,"getBill")'>{{y.bookingVoucherId}}</span></div>
+                  <div class='fl w30 p2-4 cursor'><span class="label label-primary f12 pa1 cursor" @click='getData(i,"getBill")'>{{y.bookingVoucherId}}</span></div>
                   <div class="fl w25 p2-4 cursor" @click='getAttach(i.bookingId)'><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded Bills</div>
-                  <div class='fr w30 al-right p2-4'><span class=''>{{y.date}}</span> </div>
+                  <div class='fL w40 al-right p2-4'><span class=''>{{y.date}}</span> </div>
                 </div>
                 
                 <div class="fl w100 p10">
-                  <div class='fl w50 p2-4'>{{y.customerName}} </div>
-                  <div class='fl w50 al-right p2-4 b6 black f12'>
+                  <div class='fl w30 p2-4'>{{y.customerName}} </div>
+                  <div class='fl w25 p2-4 cursor' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i> Travel Voucher</div>
+                  <div class='fl w40 al-right p2-4 b6 black f12'>
                     <span class='badge badge-primary' v-money>{{y.total}}</span>
                   </div>
                 </div>
@@ -493,7 +495,7 @@ export default {
         {groupName: "Paid",id:2},
         {groupName: "Pending",id:3},
       ],
-      DateFilter: 'booking', 
+      DateFilter: 'all', 
       ActiveDetailsFilter: {},
       activeListItem: {},
       filterDate: {
