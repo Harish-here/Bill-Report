@@ -10,7 +10,7 @@ export default  {
     getBillPage: decide({local:'http://localhost',prod:'http://www.hobse.com/demo/index.php/admin/reports/bookingusersdetailsdisplay/'}),
     getReport: decide({local:'http://localhost',prod:'http://www.hobse.com/demo/index.php/customer/invoice/getReport'}),
     getReportPdf: 'http://www.hobse.com/demo/index.php/customer/invoice/getReportPdf',
-    getAttach: 'http://www.hobse.com/demo/index.php/admin/booking/billList/',
+    getAttach: 'http://www.hobse.com/demo/index.php/admin/booking/billListBoth/',
     getTravel: 'http://www.hobse.com/demo/index.php/customer/booking/resstatus.html?vid='
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div id="app" class='flex'>
-    <div class='w25'>
+    <div class='' style='width:18%'>
       <Panel :list='{meta:listMeta,group: [],details: []}'
              :activeMeta='active' 
              ActiveView='meta'
@@ -23,7 +23,7 @@
              @hadFilter='setGroupFilter' />
     </div>
     
-    <div class='w40' v-if='billVisible'>
+    <div style='width:49%' v-if='billVisible'>
       <Panel :activeMeta='activeGroup'
              :ActiveMetaData='active'
              :ActiveMetaDataList='listMeta'
@@ -168,7 +168,7 @@ export default {
       download(f,p)
     },
     somethingWentWrong: function(){
-      alert('Services currently unavailable due to network issues. Please Refresh the page or login again');
+      alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again');
     },
     createCSV: function(JSONData, ReportTitle, ShowLabel){
       //snippet from third party to create CSV
@@ -248,10 +248,12 @@ export default {
     },
     getList: function(data,callBack){
       const self = this;
+      // alertify.message('Fetching the data..');
       if(data.hasOwnProperty('url') && data.hasOwnProperty('param') && typeof callBack === 'function'){
        
           $.post(data.url,data.param).done(function(rec){
-             callBack(rec)
+             callBack(rec);
+            //  alertify.dismissAll();
             });
         
       }else{
@@ -350,7 +352,9 @@ export default {
       
       },
     billGroup: function(data){ //gettin the group list
+
       const self = this;
+      self.view = '';
       self.activeGroupFilter = {};
       this.billVisible = false;
       this.activeDateType = data.DateType;
@@ -398,8 +402,9 @@ export default {
     setGroupFilter: function(data){
       const self = this;
       this.activeGroupFilter = data.filterData;//settig the group filter
-      let combineFilter = Object.assign(data.filterData,data.filterDate);
-      self.activeDateType = data.filterDate.DataType;
+      let date = {to:self.activeFrom,from: self.activeFrom};
+      let combineFilter = Object.assign(data.filterData,data.filterDate,date);
+      // self.activeDateType = data.filterDate.DateType;
       if(data.active.hasOwnProperty('groupName')){
               // self.listDetails = [];
         this.getList({url:api.getDetailsList,param:{data: data.active,meta: self.active,filter: combineFilter}},function(recvData){ 
@@ -419,7 +424,7 @@ export default {
         func();
       }catch(e){
         // console.log(e.message);
-        alert('Services currently unavailable due to network issues. Please Refresh the page or login again');
+        alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again');
       };
     },
     getAttach: function(id){
@@ -437,7 +442,7 @@ export default {
          self.ImgCorp = [];
        }
        $('.myModal2').modal()
-      }).fail(x => alert('Services currently unavailable due to network issues. Please Refresh the page or login again'));
+      }).fail(x => alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 
   },
