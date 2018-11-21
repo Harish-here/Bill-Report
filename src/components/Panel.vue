@@ -27,8 +27,8 @@
           </span>
         </span>
         <span class='w-20' v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)'>
-          <button class='btn btn-xs btn-default' v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)'>
-           Export <i title='export this as report' @click='getReport' class="fa fa-download cursor" aria-hidden="true"></i>
+          <button class='btn btn-xs btn-default' v-if='(ActiveView === "group" || ActiveView === "details") && (list.group.length > 0 || DetailsList.length > 0)' @click='getReport'>
+           Export <i title='export this as report'  class="fa fa-download cursor" aria-hidden="true"></i>
           </button>
         </span>
         <!-- <span style='padding:1px;' v-if='ActiveView === "meta"'>Date Type</span> -->
@@ -150,8 +150,8 @@
               <div class="fl w50 cursor">
                 <div class='flex justify-between w-100' style='font-size:11px;'>
                   <span class=''>{{i.date}}</span>
-                  <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i><span class='tooltiptext'></span></span>
-                  <span class='btn btn-xs btn-default ' @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i><span class='tooltiptext'></span></span>
+                  <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i>Voucher<span class='tooltiptext'></span></span>
+                  <span class='btn btn-xs btn-default ' @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i>Uploaded bills<span class='tooltiptext'></span></span>
                 </div>
               </div>
               <div class='fl w30 al-right'><span class=''>{{i.customerName}}</span>
@@ -203,8 +203,8 @@
                   <div class="fl w50  cursor" >
                     <div class="flex justify-between w-100">
                       <span>{{y.date}}</span>
-                      <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i><span class=''></span></div> </span>
-                      <span class='btn btn-xs btn-default' @click='getAttach(y.bookingId)'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i><span class=""></span></div></span>
+                      <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i>Voucher<span class=''></span></div> </span>
+                      <span class='btn btn-xs btn-default' @click='getAttach(y.bookingId)'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i>Uploaded bills<span class=""></span></div></span>
                     </div>
 
                   </div>

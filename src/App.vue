@@ -72,7 +72,7 @@
 
           <div id='modalContent' class="modal-body">
             <div id='bill-area' class='pa2' v-if='billData != null' v-html='billData'></div>
-            <div v-if='!(billData != null)' class='image-grid'>
+            <!-- <div v-if='!(billData != null)' class='image-grid'>
               <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
                 <li class='tc  navy h4'>Your's</li>
                 <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
@@ -97,7 +97,7 @@
                 </li>
                 <li class=' pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
               </ul>
-            </div>
+            </div> -->
 
           </div>
 
@@ -340,7 +340,7 @@ export default {
     self.billData = null;
     self.billVisible = false;
     this.activeGroupFilter = {};
-      this.getList({url:api.getDetailsList,param:{data: data,meta: self.active,filter: self.activeGroupFilter}},function(recData){
+      this.getList({url: global_base_url+api.getDetailsList,param:{data: data,meta: self.active,filter: self.activeGroupFilter}},function(recData){
         self.tryNcatch(function(){
           self.listDetails = JSON.parse(recData.trim());
           self.activeGroup = data;
@@ -360,7 +360,7 @@ export default {
       this.activeDateType = data.DateType;
       console.log(data);
       // this.backs();
-        this.getList({url:api.getGroupList,param:data},function(recData){
+        this.getList({url: global_base_url+api.getGroupList,param:data},function(recData){
            self.tryNcatch(function(){
              self.listGroup = JSON.parse(recData.trim());  
              self.active = data;
@@ -372,7 +372,7 @@ export default {
        },
     get: function(data){
       const self = this;
-      $.get(api.getTravel + data.bookingVoucherId + '&hsid=&nid=ZpSa').done(function(recData){
+      $.get(global_base_url + api.getTravel + data.bookingVoucherId + '&hsid=&nid=ZpSa').done(function(recData){
          self.reportData = null;
         self.billData = recData;
         self.bid = data.bookingVoucherId;
@@ -390,7 +390,7 @@ export default {
       self.activeTo = new Date(Number(data.filterDate.to)*1000);
       self.activeDateType = data.filterDate.DataType;
         if(this.listGroup.length > 0){
-              this.getList({url:api.getGroupList,param:sendData},function(recData){
+              this.getList({url: global_base_url + api.getGroupList,param:sendData},function(recData){
                   self.tryNcatch(function(){
                     self.listGroup = JSON.parse(recData.trim());  
                    self.active = data.active;
@@ -407,7 +407,7 @@ export default {
       // self.activeDateType = data.filterDate.DateType;
       if(data.active.hasOwnProperty('groupName')){
               // self.listDetails = [];
-        this.getList({url:api.getDetailsList,param:{data: data.active,meta: self.active,filter: combineFilter}},function(recvData){ 
+        this.getList({url: global_base_url + api.getDetailsList,param:{data: data.active,meta: self.active,filter: combineFilter}},function(recvData){ 
           //setting the bill list
               self.listDetails = JSON.parse(recvData.trim());
               // self.activeGroupFilter = {}
@@ -430,25 +430,26 @@ export default {
     getAttach: function(id){
       const self = this;
       
-      $.get(api.getAttach+id).done(function(data){
-       var temp = JSON.parse(data);
-       self.billData = null;
-       if(temp.hasOwnProperty('files')){
-         self.ImgHolder = JSON.parse(data);
-         self.ImgHotels = temp.files.filter(x => x.senderTypeId === '1');
-         self.ImgCorp = temp.files.filter(x => x.senderTypeId === '3');
-       }else{
-         self.ImgHotels = [];
-         self.ImgCorp = [];
-       }
-       $('.myModal2').modal()
+      $.get(global_base_url + api.getModal+id+'/approval').done(function(data){
+      //  var temp = JSON.parse(data);
+      //  self.billData = null;
+      //  if(temp.hasOwnProperty('files')){
+      //    self.ImgHolder = JSON.parse(data);
+      //    self.ImgHotels = temp.files.filter(x => x.senderTypeId === '1');
+      //    self.ImgCorp = temp.files.filter(x => x.senderTypeId === '3');
+      //  }else{
+      //    self.ImgHotels = [];
+      //    self.ImgCorp = [];
+      //  }
+       $('#modalContent').append(data);
+       $('.myModal2').modal('show')
       }).fail(x => alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 
   },
   created(){
     const self = this;
-    $.get(api.getMeta).done(function(data){
+    $.get(global_base_url + api.getMeta).done(function(data){
       self.tryNcatch(function(){
         self.listMeta = (typeof data === 'object') ? data : JSON.parse(data);
        })   
