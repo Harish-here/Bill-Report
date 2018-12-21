@@ -84,7 +84,7 @@
       <span class='gray'> Results for </span> "<b>{{ searchString }}</b>" <button class='fr f12 close' @click="searchString=''">clear</button>
     </div>
         <!-- report sumary -->
-    <div class='flex flex-column bg-ddd tr' style="overflow-x:auto;"  v-if='ActiveView === "group" || ActiveView === "details"'>
+    <div class='flex flex-column bg-ddd tr br b--light-silver' style="overflow-x:auto;"  v-if='ActiveView === "group" || ActiveView === "details"'>
       
         <div class='b6 tc'>Summary</div>
         
@@ -150,8 +150,8 @@
               <div class="fl w50 cursor">
                 <div class='flex justify-between w-100' style='font-size:11px;'>
                   <span class=''>{{i.date}}</span>
-                  <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i>Voucher<span class='tooltiptext'></span></span>
-                  <span class='btn btn-xs btn-default ' @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i>Uploaded bills<span class='tooltiptext'></span></span>
+                  <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class='tooltiptext'></span></span>
+                  <span class='btn btn-xs btn-default ' @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i> Uploaded bills<span class='tooltiptext'></span></span>
                 </div>
               </div>
               <div class='fl w30 al-right'><span class=''>{{i.customerName}}</span>
@@ -203,8 +203,8 @@
                   <div class="fl w50  cursor" >
                     <div class="flex justify-between w-100">
                       <span>{{y.date}}</span>
-                      <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i>Voucher<span class=''></span></div> </span>
-                      <span class='btn btn-xs btn-default' @click='getAttach(y.bookingId)'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i>Uploaded bills<span class=""></span></div></span>
+                      <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class=''></span></div> </span>
+                      <span class='btn btn-xs btn-default' @click='getAttach(y.bookingId)'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded bills<span class=""></span></div></span>
                     </div>
 
                   </div>
@@ -236,19 +236,19 @@
                     </div>
                 </div>
             </div>
-            <div class='fl w100 p10 center no-bill' v-if='i.bills.length === 0'>Hurray all your bills have been approved and paid. By the way have you forgotten to upload a bill ?</div>
+            <div class='fl w100 p10 center no-bill' v-if='i.bills.length === 0'>No bills match the criteria.</div>
             <!-- bill strip end -->
             
           </div>
         </li>
-        <li class='fl w100 p10 center br-none no-bill' v-if='list.details.length !== 0 && DetailsList.length === 0'>Hurray all your bills have been approved and paid. By the way have you forgotten to upload a bill ?</li>
+        <li class='fl w100 p10 center br-none no-bill' v-if='list.details.length !== 0 && DetailsList.length === 0'>No bills match the criteria.</li>
         <!-- <li class='fl w100 p10 center  br-none' v-if='DetailsList.length.length === 0'> No Bills found</li> -->
       </ul>
     </div>
 
     <!-- meta listing -->
      <div v-if=" ActiveView ==='meta' ">
-      <ul class='pa  h-100 y-flow' v-if='list.meta.length > 0 && list.group.length === 0' >
+      <ul class='pa  h-fix-g y-flow' v-if='list.meta.length > 0 && list.group.length === 0' >
         <li class='p20-40 cursor b6' v-for='i in list.meta'
             :class='{"active-items":(activeListItem.id !== undefined && activeListItem.id === i.id)}'
            :key='i.id' @click='getData(i,"getBillGroup")'><span>{{i.groupName}}</span>
@@ -715,13 +715,19 @@ export default {
     getTotal: function(arr,obj){
       let acc = 0;
       if(arr.length > 0){
-      return Number(arr.filter(r => {
+      let filtered =  arr.filter(r => {
         if(r['bookingStatus'] !== undefined){
           return r['bookingStatus'] !== "2"
         }else{
           return true
         }
-      }).map(x => x[obj]).reduce((acc,item) => Number(acc) + Number(item))).toFixed(2)
+      }).map(x => x[obj]);
+
+      if(filtered.length > 0 ){
+        return Number(filtered.reduce((acc,item) => Number(acc) + Number(item))).toFixed(2)
+      }else{
+        return 0
+      }
       }else{
         return 0 
       }

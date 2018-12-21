@@ -31,8 +31,8 @@ hr{ margin-bottom:0px !important; }
 .w50{ width : 50%; }
 .w60{ width : 60%; }
 .w100{ width : 100%; }
-.h-fix{height: 450px !important;}
-.h-fix-g{height:450px;}
+.h-fix{height: 380px !important;}
+.h-fix-g{height:380px;}
 .h-head{height: 80px;}
 .h-75{height: 75vh; }
 .h-60{height: 60vh; }
@@ -99,7 +99,7 @@ hr{ margin-bottom:0px !important; }
 .green{ color:green !important; }
 .bl{ color:black !important;}
 .white{color:#fff;}
-.gray{color: lightgray !important;}
+.gray{color: gray !important;}
 .bg-gray{background-color: #f3f3f3;}
 .blue{color: #4285f4 !important;}
 .bg-high{background-color: #f9f9f9;}

@@ -23,7 +23,7 @@
              @hadFilter='setGroupFilter' />
     </div>
     
-    <div style='width:49%' v-if='billVisible'>
+    <div style='width:47%' v-if='billVisible'>
       <Panel :activeMeta='activeGroup'
              :ActiveMetaData='active'
              :ActiveMetaDataList='listMeta'
@@ -103,6 +103,27 @@
 
           </div><!-- modal-content -->
       </div><!-- modal-dialog -->
+    </div> <!-- modal end -->
+
+    <div class="modal right fade" id='approval'  tabindex="-1" role="dialog" aria-labelledby="approval">
+      <div class="modal-dialog" role="document" style='width:45%;'>
+          <div class="modal-content">
+
+          <div class="modal-header">
+            <div class='p2-4'>
+              <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
+              <div class="modal-title f16" >
+                Uploaded Bills
+              </div>
+            </div>
+          </div>
+
+          <div id='' class="modal-body">
+            <div id='bill-approv' class=''></div>
+          </div>
+
+          </div><!-- modal-content -->
+      </div><!-- modal-dialog -->
     </div> <!-- modal end -->  
     
   </div>
@@ -114,7 +135,7 @@ import Panel from './components/Panel.vue'
 
 export default {
   name: 'App',
-   components: { Panel },
+  components: { Panel },
   computed: {
     listData(){
       const self = this;
@@ -377,8 +398,8 @@ export default {
         self.billData = recData;
         self.bid = data.bookingVoucherId;
         
-        $(function(){
-        $('.myModal2').modal();});
+        // $(function(){
+        $('.myModal2').modal('show');
       });
     },
     setFilterDate: function(data){
@@ -431,18 +452,9 @@ export default {
       const self = this;
       
       $.get(global_base_url + api.getModal+id+'/approval').done(function(data){
-      //  var temp = JSON.parse(data);
-      //  self.billData = null;
-      //  if(temp.hasOwnProperty('files')){
-      //    self.ImgHolder = JSON.parse(data);
-      //    self.ImgHotels = temp.files.filter(x => x.senderTypeId === '1');
-      //    self.ImgCorp = temp.files.filter(x => x.senderTypeId === '3');
-      //  }else{
-      //    self.ImgHotels = [];
-      //    self.ImgCorp = [];
-      //  }
-       $('#modalContent').append(data);
-       $('.myModal2').modal('show')
+        $('#bill-approv').empty();
+       $('#bill-approv').append(data);
+       $('#approval').modal('show')
       }).fail(x => alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 
