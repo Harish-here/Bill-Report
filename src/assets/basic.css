@@ -238,3 +238,10 @@ hr{ margin-bottom:0px !important; }
   .btnprint{
 	  display: none !important;
   }
+
+  .w70{
+	  width:70% !important;
+  }
+  .bg-silver{
+	  background-color: #bdc3c775;
+  }

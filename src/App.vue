@@ -57,48 +57,20 @@
     </div>
     <!-- modal -->
     <div class="modal right fade myModal2"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-      <div class="modal-dialog" role="document" style='width:70%;'>
+      <div class="modal-dialog" role="document" >
           <div class="modal-content">
 
           <div class="modal-header">
             <div class='p2-4'>
               <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
-              <div class="modal-title f18" id="myModalLabel2">
-                <span v-if='billData != null'>Travel Voucher</span>
-                <span v-else>Uploaded Bills</span>
+              <div class="modal-title f18" id="myModalLabel2" >
+                <!-- <span v-if='billData != null'>Travel Voucher</span> -->
+                <span >Uploaded Bills</span>
               </div>
             </div>
           </div>
 
-          <div id='modalContent' class="modal-body">
-            <div id='bill-area' class='pa2' v-if='billData != null' v-html='billData'></div>
-            <!-- <div v-if='!(billData != null)' class='image-grid'>
-              <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-                <li class='tc  navy h4'>Your's</li>
-                <li class="flex pa2 ma2 template-download jutify-content items-center" v-for='i in ImgCorp' :key='i.id'>
-                  <span class='w-100 tc'>
-                    <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
-                      <img  :src='i.url' width='150'  />
-                    </a>
-                    <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
-                  </span>
-                </li>
-                <li class=' pa2 tc' v-if='ImgCorp.length === 0'>Nothings here</li>
-              </ul>
-              <ul class='over' v-if='ImgHolder.hasOwnProperty("files")'>
-                <li class='tc  navy h4'>Hotel</li>
-                <li class="w-100 flex pa2 ma2 template-download" v-for='i in ImgHotels' :key='i.id'>
-                  <span class='w-100 tc'>
-                    <a class='w-100' :href='i.url' data-lightbox='image1' data-title='bill'>
-                      <img  :src='i.url' width='150'  />
-                    </a>
-                    <a @click="download(i.url,i.name)"><p class='wrap'>{{i.name}}</p></a>
-                  </span>
-                </li>
-                <li class=' pa2 tc' v-if='ImgHotels.length === 0'>Nothings here</li>
-              </ul>
-            </div> -->
-
+          <div id='bill-approv' class="modal-body">
           </div>
 
           </div><!-- modal-content -->
@@ -106,20 +78,20 @@
     </div> <!-- modal end -->
 
     <div class="modal right fade" id='approval'  tabindex="-1" role="dialog" aria-labelledby="approval">
-      <div class="modal-dialog" role="document" style='width:45%;'>
+      <div class="modal-dialog" role="document" style='width:70% !important;'>
           <div class="modal-content">
 
           <div class="modal-header">
             <div class='p2-4'>
               <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
               <div class="modal-title f16" >
-                Uploaded Bills
+                Travel Voucher
               </div>
             </div>
           </div>
 
           <div id='' class="modal-body">
-            <div id='bill-approv' class=''></div>
+              <div id='bill-area' class='pa2' v-if='billData != null' v-html='billData'></div>
           </div>
 
           </div><!-- modal-content -->
@@ -399,7 +371,7 @@ export default {
         self.bid = data.bookingVoucherId;
         
         // $(function(){
-        $('.myModal2').modal('show');
+        $('#approval').modal('show');
       });
     },
     setFilterDate: function(data){
@@ -453,8 +425,8 @@ export default {
       
       $.get(global_base_url + api.getModal+id+'/approval').done(function(data){
         $('#bill-approv').empty();
-       $('#bill-approv').append(data);
-       $('#approval').modal('show')
+        $('#bill-approv').append(data);
+        $('.myModal2').modal('show');
       }).fail(x => alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again'));
     }
 

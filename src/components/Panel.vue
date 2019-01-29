@@ -89,14 +89,14 @@
         <div class='b6 tc'>Summary</div>
         
         <div class='flex flex-stretch pa1' v-if='ActiveView === "group"'>
-         <div class='flex flex-column  _flx_full'>Total <div class='navy curr'>{{overAllTotal}}</div></div>
-         <div class='flex flex-column  _flx_full'>Paid<div class='green curr' >{{overAllPaid}}</div></div>
-         <div class='flex flex-column  _flx_full'>Pending <div class='reds curr'>{{overAllPending}}</div></div>
+         <div class='flex flex-column  _flx_full'>Total <div class='navy ' >{{CurrencyFormat(overAllTotal)}}</div></div>
+         <div class='flex flex-column  _flx_full'>Paid<div class='green money' >{{ CurrencyFormat(overAllPaid)}}</div></div>
+         <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(overAllPending)}}</div></div>
         </div>
         <div class='flex flex-stretch pa1' v-if='ActiveView === "details"'>
-         <div class='flex flex-column  _flx_full'>Total <div class='navy curr' >{{Total}}</div></div>
-         <div class='flex flex-column  _flx_full'>Paid<div class='green curr' >{{PaidTotal}}</div></div>
-         <div class='flex flex-column  _flx_full'>Pending <div class='reds curr' >{{PendingTotal}}</div></div>
+         <div class='flex flex-column  _flx_full'>Total <div class='navy money'>{{CurrencyFormat(Total)}}</div></div>
+         <div class='flex flex-column  _flx_full'>Paid<div class='green money'>{{CurrencyFormat(PaidTotal)}}</div></div>
+         <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(PendingTotal)}}</div></div>
         </div>
        
     </div>
@@ -115,15 +115,15 @@
               <div class='flex justify-between pa1 tr'>
                 <div class='flex flex-column _flx_full'>
                   <!-- <span class=''>Total</span> -->
-                  <span class='navy b6' v-money>{{i.total}}</span>
+                  <span class='navy b6' >{{CurrencyFormat(i.total)}}</span>
                 </div>
                 <div class='flex flex-column _flx_full tr'>
                   <!-- <span class=''>Paid</span> -->
-                  <span class='green b6' v-money>{{i.paid}}</span>
+                  <span class='green b6' >{{CurrencyFormat(i.paid)}}</span>
                 </div>
                 <div class='flex flex-column _flx_full tr'>
                   <!-- <span class=''>Pending</span> -->
-                  <span class='light-red b6' v-money>{{i.pending}}</span>
+                  <span class='light-red b6' >{{CurrencyFormat(i.pending)}}</span>
                 </div>
               </div>
             
@@ -145,53 +145,43 @@
             
             <div class="fl w100 pa1">
               <div class='fl w20 cursor'>
-                <span class="label label-primary f12 pa1 " :class='{"label-danger": i.bookingStatus === "2"}' @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span>
+                <span class="f12 pa1 " :class='{"red": i.bookingStatus === "2"}' @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span>
               </div>
               <div class="fl w50 cursor">
                 <div class='flex justify-between w-100' style='font-size:11px;'>
                   <span class=''>{{i.date}}</span>
-                  <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class='tooltiptext'></span></span>
+                  <!-- <span class='btn btn-xs btn-default ' @click='getData(i,"getBill")'><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class='tooltiptext'></span></span> -->
                   <span class='btn btn-xs btn-default ' @click='getAttach(i.bookingId)'><i class="fa fa-file-image-o" aria-hidden="true"></i> Uploaded bills<span class='tooltiptext'></span></span>
                 </div>
               </div>
               <div class='fl w30 al-right'><span class=''>{{i.customerName}}</span>
               </div>
             </div>      
-            <!-- <div class="fl w100 pa1">
-              <div class='fl w30 p2-4'></div>
-              <div class='fl w25 p2-4 cursor' >
-                
-              </div>
-              <div class='fl w40 al-right p2-4 black f12'>
-                <span class='reds' v-if='i.bookingStatus === "2"'>Booking cancellation fee</span>
-                <span class='badge badge-primary b6' v-if='i.bookingStatus !== "2"' v-money>{{i.total}}</span>
-                <span class='badge badge-primary b6' :class='{"badge-danger": i.bookingStatus === "2"}' v-else v-money>{{i.cancellationCharges}}</span>
-              </div>
-            </div> -->
+            
             <div class='flex justify-between pa1 tr'>
                 <div class='flex flex-column _flx_full'>
                   <!-- <span class=''>Total</span> -->
-                  <span class='navy b6' v-money>{{i.total}}</span>
+                  <span class='navy b6' >{{CurrencyFormat(i.total)}}</span>
                 </div>
                 <div class='flex flex-column _flx_full tr'>
                   <!-- <span class=''>Paid</span> -->
-                  <span class='green b6' v-money>{{i.paid}}</span>
+                  <span class='green b6' >{{CurrencyFormat(i.paid)}}</span>
                 </div>
                 <div class='flex flex-column _flx_full tr'>
                   <!-- <span class=''>Pending</span> -->
-                  <span class='light-red b6' v-money>{{i.pending}}</span>
+                  <span class='light-red b6' >{{CurrencyFormat(i.pending)}}</span>
                 </div>
             </div>
           </li>
         </span>
         <li class='fl w100 pa1' v-else><!-- details list view with filter -->
           <div class='fl w100' v-for='i in DetailsList' :key='i'>
-            <div class='fl w100 pa1 black  bg-gray center'>
+            <div class='fl w100 pa1 black  bg-silver center'>
               <span class='b6 fl w100'>{{i.groupName}}</span>
               <div class='flex w100' v-if="getTotal(i.bills,'total') > 0">
-                <span class='flex flex-column _flx_full tr'>Total<span class='reds fl' v-money>{{ getTotal(i.bills,'total') }}</span></span>
-                <span class='flex flex-column _flx_full tr'>Paid<span class='navy fl' style="background-color: rgb(245, 245, 245);" v-money>{{ getTotal(i.bills,'paid') }}</span></span>
-                <span class='flex flex-column _flx_full tr'>Pending<span class='green fl' v-money>{{ getTotal(i.bills,'pending') }}</span></span>
+                <span class='flex flex-column _flx_full tr'>Total<span class='reds fl'>{{ CurrencyFormat(getTotal(i.bills,'total')) }}</span></span>
+                <span class='flex flex-column _flx_full tr'>Paid<span class='navy fl'  >{{ CurrencyFormat(getTotal(i.bills,'paid')) }}</span></span>
+                <span class='flex flex-column _flx_full tr'>Pending<span class='green fl' >{{ CurrencyFormat(getTotal(i.bills,'pending')) }}</span></span>
               </div>
             </div>
             <div class='fl w100  groupList pa1' 
@@ -199,11 +189,11 @@
                  :key='y.bookingId'
                  :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}'>
                 <div class="fl w100 pa2">
-                  <div class='fl w20 cursor'><span class="label label-primary f12 pa1 cursor" :class='{"label-danger": y.bookingStatus === "2"}' @click='getData(i,"getBill")'>{{y.bookingVoucherId}}</span></div>
+                  <div class='fl w20 cursor'><span class="f12 pa1 cursor" :class='{"red": y.bookingStatus === "2"}' @click='getData(y,"getBill")'>{{y.bookingVoucherId}}</span></div>
                   <div class="fl w50  cursor" >
                     <div class="flex justify-between w-100">
                       <span>{{y.date}}</span>
-                      <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class=''></span></div> </span>
+                      <!-- <span class='btn btn-xs btn-default' @click='getData(y,"getBill")'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i> Voucher<span class=''></span></div> </span> -->
                       <span class='btn btn-xs btn-default' @click='getAttach(y.bookingId)'><div class=''><i class="fa fa-file-text-o" aria-hidden="true"></i> Uploaded bills<span class=""></span></div></span>
                     </div>
 
@@ -217,22 +207,22 @@
                   </div>
                   <div class='fl w40 al-right p2-4  black f12'>
                     <span class='reds' v-if='y.bookingStatus === "2"'>Booking cancellation fee</span>
-                    <span class='badge badge-primary b6' v-if='y.bookingStatus !== "2"'  v-money>{{y.total}}</span>
-                    <span class='badge badge-primary b6' :class='{"badge-danger": y.bookingStatus === "2"}' v-else  v-money>{{y.cancellationCharges}}</span>
+                    <span class='badge badge-primary b6' v-if='y.bookingStatus !== "2"'  >{{CurrencyFormat(y.total)}}</span>
+                    <span class='badge badge-primary b6' :class='{"badge-danger": y.bookingStatus === "2"}' v-else  >{{CurrencyFormat(y.cancellationCharges)}}</span>
                   </div>
                 </div>
                 <div class='flex justify-between pa1 tr'>
                     <div class='flex flex-column _flx_full'>
                       <!-- <span class=''>Total</span> -->
-                      <span class='navy b6' v-money>{{y.total}}</span>
+                      <span class='navy b6' >{{CurrencyFormat(y.total)}}</span>
                     </div>
                     <div class='flex flex-column _flx_full tr'>
                       <!-- <span class=''>Paid</span> -->
-                      <span class='green b6' v-money>{{y.paid}}</span>
+                      <span class='green b6' >{{CurrencyFormat(y.paid)}}</span>
                     </div>
                     <div class='flex flex-column _flx_full tr'>
                       <!-- <span class=''>Pending</span> -->
-                      <span class='light-red b6' v-money>{{y.pending}}</span>
+                      <span class='light-red b6' >{{CurrencyFormat(y.pending)}}</span>
                     </div>
                 </div>
             </div>
@@ -629,27 +619,15 @@ export default {
   directives: {
     money:{
       inserted:function(el){
-        var str = el.innerHTML;
-        var output,
-            decm = "";
-        if(str.includes('.')){
-          decm ='.' + str.split('.')[1];
-          str = str.split('.')[0];
-        }
-          if( !isNaN(str) && str.toString().length >= 4 ){
-            output = str.split('').reverse().map((x,i)=>{
-              if(i >1 && i%2 !== 0){
-                return  x  + ','
-              }else{
-                return x
-              }
-            }).reverse().join('');
-          }else{
-            output = str
-          }
-          el.innerHTML = '₹' + output + decm;
-        }
-    }
+                var str = Number(el.innerHTML);
+                var parts = str.toString().split(".");
+                parts[0] = parts[0].replace(/\B(?=(\d{2})+(?!\d))/g, ",");
+                var t = parts.join(".");
+                
+                el.innerHTML = '₹' + t;
+                }
+            }
+    
   },
 
   methods: {
@@ -659,6 +637,11 @@ export default {
       this.searchString = '';
       this.ActiveDetailsFilter = {};
 
+    },
+
+    CurrencyFormat: function(num){
+      var number = (!isNaN(num)) ? Number(num) : 0;
+      return number.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
     },
 
     getAttach: function(id){
