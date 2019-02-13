@@ -88,16 +88,16 @@
       
         <div class='b6 tc'>Summary</div>
         
-        <div class='flex flex-stretch pa1' v-if='ActiveView === "group"'>
+        <div class='flex flex-stretch pa1' v-if='ActiveView === "group" || ActiveView === "details"'>
          <div class='flex flex-column  _flx_full'>Total <div class='navy ' >{{CurrencyFormat(overAllTotal)}}</div></div>
          <div class='flex flex-column  _flx_full'>Paid<div class='green money' >{{ CurrencyFormat(overAllPaid)}}</div></div>
          <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(overAllPending)}}</div></div>
         </div>
-        <div class='flex flex-stretch pa1' v-if='ActiveView === "details"'>
+        <!-- <div class='flex flex-stretch pa1' v-if='ActiveView === "details"'>
          <div class='flex flex-column  _flx_full'>Total <div class='navy money'>{{CurrencyFormat(Total)}}</div></div>
          <div class='flex flex-column  _flx_full'>Paid<div class='green money'>{{CurrencyFormat(PaidTotal)}}</div></div>
          <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(PendingTotal)}}</div></div>
-        </div>
+        </div> -->
        
     </div>
     <!-- Group listing -->
@@ -156,7 +156,18 @@
               </div>
               <div class='fl w30 al-right'><span class=''>{{i.customerName}}</span>
               </div>
-            </div>      
+            </div>  
+            <div class="fl w100 pa1">
+                  <div class='fl w30 p2-4'></div>
+                  <div class='fl w25 p2-4 cursor'>
+                    
+                  </div>
+                  <div class='fl w40 al-right p2-4  black f12'>
+                    <span class='reds' v-if='i.bookingStatus === "2"'>Booking cancellation fee</span>
+                    <span class='badge badge-primary b6' v-if='i.bookingStatus !== "2"'  >{{CurrencyFormat(i.total)}}</span>
+                    <span class='badge badge-primary b6' :class='{"badge-danger": i.bookingStatus === "2"}' v-else  >{{CurrencyFormat(i.cancellationCharges)}}</span>
+                  </div>
+              </div>    
             
             <div class='flex justify-between pa1 tr'>
                 <div class='flex flex-column _flx_full'>
@@ -700,7 +711,7 @@ export default {
       if(arr.length > 0){
       let filtered =  arr.filter(r => {
         if(r['bookingStatus'] !== undefined){
-          return r['bookingStatus'] !== "2"
+          return true
         }else{
           return true
         }
