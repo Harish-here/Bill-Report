@@ -1,6 +1,6 @@
 <template>
   <div id="app" class='flex'>
-    <div class='' style='width:18%'>
+    <div class='flex flex-column' style='width:18%'>
       <Panel :list='{meta:listMeta,group: [],details: []}'
              :activeMeta='active' 
              ActiveView='meta'
@@ -11,7 +11,7 @@
              @EmitDate='setDate'  
              @hadFilter='setGroupFilter' />
     </div>
-    <div class='w35' v-if='view == "group"'>
+    <div class='w35 flex flex-column' v-if='view == "group"'>
       <Panel :list='{meta:[],group: listGroup,details: []}'
              :activeMeta='active' 
              ActiveView='group'
@@ -23,7 +23,7 @@
              @hadFilter='setGroupFilter' />
     </div>
     
-    <div style='width:47%' v-if='billVisible'>
+    <div class='flex flex-column' style='width:47%' v-if='billVisible'>
       <Panel :activeMeta='activeGroup'
              :ActiveMetaData='active'
              :ActiveMetaDataList='listMeta'

@@ -15,10 +15,10 @@
         </span>
         <span class='w-30' v-if='ActiveView === "details" || ActiveView === "group"'>Total bills - 
           <span class='badge badge-primary' v-if='ActiveView === "details"'>
-             {{ (list.details.length > 0 && 
-               !list.details[0].hasOwnProperty('groupName')) ?
-                                         list.details.length : 
-                                         (list.details.length > 0) ? list.details.map(x => x.bills.length).reduce((a,b)=> a+b,0) : 0
+             {{ (DetailsList.length > 0 && 
+               !DetailsList[0].hasOwnProperty('groupName')) ?
+                                         DetailsList.length : 
+                                         DetailsList.map(x => x.bills.length).reduce((a,b)=> a+b,0)
             }}
           </span>
           <span class='badge badge-primary' v-if='ActiveView === "group"'>
@@ -84,14 +84,28 @@
       <span class='gray'> Results for </span> "<b>{{ searchString }}</b>" <button class='fr f12 close' @click="searchString=''">clear</button>
     </div>
         <!-- report sumary -->
-    <div class='flex flex-column bg-ddd tr br b--light-silver' style="overflow-x:auto;"  v-if='ActiveView === "group" || ActiveView === "details"'>
+    <div class='flex flex-column bg-ddd tr br b--light-silver' style="overflow-x:auto;"  
+          v-if='ActiveView === "group" || ActiveView === "details"'>
       
         <div class='b6 tc'>Summary</div>
         
-        <div class='flex flex-stretch pa1' v-if='ActiveView === "group" || ActiveView === "details"'>
-         <div class='flex flex-column  _flx_full'>Total <div class='navy ' >{{CurrencyFormat(overAllTotal)}}</div></div>
-         <div class='flex flex-column  _flx_full'>Paid<div class='green money' >{{ CurrencyFormat(overAllPaid)}}</div></div>
-         <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(overAllPending)}}</div></div>
+        <div class='flex flex-stretch pa1' v-if='ActiveView === "group"'>
+          <div class='flex _flx_full tl pa1'>{{activeMeta.groupName}}</div>
+          <div class='flex mr3' style='min-width:320px;'>
+              <div class='flex flex-column  _flx_full'>Total <div class='navy ' >{{CurrencyFormat(overAllTotal)}}</div></div>
+              <div class='flex flex-column  _flx_full'>Paid<div class='green money' >{{ CurrencyFormat(overAllPaid)}}</div></div>
+              <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(overAllPending)}}</div></div>
+          </div>
+        </div>
+      <!-- report summary for details -->
+        <div class='flex flex-stretch pa1' v-if='ActiveView === "details"'>
+         <div class='flex _flx_full pa1'>Bill Details</div>
+         <div class='flex mr3' style='min-width:320px;'>
+            <div class='flex flex-column  _flx_full'>Total <div class='navy ' >{{CurrencyFormat(overAllTotal)}}</div></div>
+            <div class='flex flex-column  _flx_full'>Paid<div class='green money' >{{ CurrencyFormat(overAllPaid)}}</div></div>
+            <div class='flex flex-column  _flx_full'>Pending <div class='reds money'>{{CurrencyFormat(overAllPending)}}</div></div>
+         </div>
+         
         </div>
         <!-- <div class='flex flex-stretch pa1' v-if='ActiveView === "details"'>
          <div class='flex flex-column  _flx_full'>Total <div class='navy money'>{{CurrencyFormat(Total)}}</div></div>
@@ -101,18 +115,21 @@
        
     </div>
     <!-- Group listing -->
-    <div v-if='ActiveView === "group"'>
-      <ul class='pa h-fix-g y-flow'>
+    <div v-if='ActiveView === "group"' class='full-flex flex flex-column'>
+      <ul class='pa full-flex y-flow'>
           <li class='pa1 cursor' v-for='i in filterList' :key='i.id' @click='getData(i,"getBillList")'
              :class='{"active-item":(activeListItem.id !== undefined && activeListItem.id === i.id)}'>
-            <div class='black b6 pa1'>
+            <!-- <div class='black b6 pa1'>
               <span class='tan pa1'>{{i.groupName}}</span> 
-              <!-- <i class="fa fa-file-text-o" aria-hidden="true"></i> - {{i.noOfTransactions}} -->
-            </div>
+              <i class="fa fa-file-text-o" aria-hidden="true"></i> - {{i.noOfTransactions}}
+            </div> -->
             <!-- <i class="fa fa-chevron-right fr f14" aria-hidden="true"></i> -->
             <!-- <i v-if='(activeListItem.hasOwnProperty("id") && activeListItem.id === i.id)' class="fa fa-chevron-right fr" aria-hidden="true"></i> -->
-            <div>
-              <div class='flex justify-between pa1 tr'>
+            <div class='flex mr3'>
+              <div class='black b6 pa1 _flx_full'>
+                <span class='pa1 ma2'>{{i.groupName}}</span> 
+              </div>
+              <div class='flex justify-between pa1 tr' style='min-width:320px;'>
                 <div class='flex flex-column _flx_full'>
                   <!-- <span class=''>Total</span> -->
                   <span class='navy b6' >{{CurrencyFormat(i.total)}}</span>
@@ -126,7 +143,6 @@
                   <span class='light-red b6' >{{CurrencyFormat(i.pending)}}</span>
                 </div>
               </div>
-            
             </div>
           </li>
           <li class=' pa1 tc  br-none no-bill' v-if='list.group.length !== 0 && filterList.length === 0'>There is nothing to show here. Maybe you chose a wrong range of dates</li>
@@ -135,15 +151,15 @@
     </div>
     
     <!-- details listing -->
-    <div v-if='ActiveView === "details"'>
-      <ul class='pa fl w100 h-fix y-flow'>
+    <div v-if='ActiveView === "details"' class='full-flex flex flex-column'>
+      <ul class='pa fl w100 full-flex y-flow'>
         <!-- details list without filter -->
         <span v-if='DetailsList.length > 0 && !DetailsList[0].hasOwnProperty("groupName")'>
           <li class='fl w100  pa1'
               v-for='i in DetailsList' :key='i.bookingId' 
               :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === i.bookingId)}'>
             
-            <div class="fl w100 pa1">
+            <div class="fl w100 pa1" v-if='false'>
               <div class='fl w20 cursor'>
                 <span class="f12 pa1 " :class='{"red": i.bookingStatus === "2"}' @click='getData(i,"getBill")'>{{i.bookingVoucherId}}</span>
               </div>
@@ -156,8 +172,9 @@
               </div>
               <div class='fl w30 al-right'><span class=''>{{i.customerName}}</span>
               </div>
-            </div>  
-            <div class="fl w100 pa1">
+            </div> 
+            <!-- cancelltion block --> 
+            <!-- <div class="fl w100 pa1" v-if='false'>
                   <div class='fl w30 p2-4'></div>
                   <div class='fl w25 p2-4 cursor'>
                     
@@ -167,39 +184,60 @@
                     <span class='badge badge-primary b6' v-if='i.bookingStatus !== "2"'  >{{CurrencyFormat(i.total)}}</span>
                     <span class='badge badge-primary b6' :class='{"badge-danger": i.bookingStatus === "2"}' v-else  >{{CurrencyFormat(i.cancellationCharges)}}</span>
                   </div>
-              </div>    
-            
-            <div class='flex justify-between pa1 tr'>
-                <div class='flex flex-column _flx_full'>
-                  <!-- <span class=''>Total</span> -->
-                  <span class='navy b6' >{{CurrencyFormat(i.total)}}</span>
+            </div>     -->
+            <!-- Total - Paid -  Pending -->
+            <div class='flex mr3'>
+              <div class="flex  _flx_full blue cursor">
+                <div class="pa1 _flx_full "  @click='getData(i,"getBill")' :class='{"red": i.bookingStatus === "2"}'>
+                  {{i.bookingVoucherId}}
+                  <i v-if='i.bookingStatus === "2"' class="fa fa-times" aria-hidden="true"></i>
                 </div>
-                <div class='flex flex-column _flx_full tr'>
-                  <!-- <span class=''>Paid</span> -->
-                  <span class='green b6' >{{CurrencyFormat(i.paid)}}</span>
-                </div>
-                <div class='flex flex-column _flx_full tr'>
-                  <!-- <span class=''>Pending</span> -->
-                  <span class='light-red b6' >{{CurrencyFormat(i.pending)}}</span>
-                </div>
+                <div class="pa1 _flx_full" @click='getAttach(i.bookingId)'>{{i.customerName}}</div>
+              </div>
+              <div class='flex justify-between pa1 tr ' style='min-width:320px;'>
+                  <div class='flex flex-column justify-center _flx_full'>
+                    <!-- <span class=''>Total</span> -->
+                    <span class='navy b6' >{{CurrencyFormat(i.total)}}</span>
+                  </div>
+                  <div class='flex flex-column  justify-center _flx_full tr'>
+                    <!-- <span class=''>Paid</span> -->
+                    <span class='green b6' >{{CurrencyFormat(i.paid)}}</span>
+                  </div>
+                  <div class='flex flex-column justify-center _flx_full tr'>
+                    <!-- <span class=''>Pending</span> -->
+                    <span class='light-red b6' >{{CurrencyFormat(i.pending)}}</span>
+                  </div>
+              </div>
             </div>
           </li>
         </span>
-        <li class='fl w100 pa1' v-else><!-- details list view with filter -->
-          <div class='fl w100' v-for='i in DetailsList' :key='i'>
-            <div class='fl w100 pa1 black  bg-silver center'>
-              <span class='b6 fl w100'>{{i.groupName}}</span>
-              <div class='flex w100' v-if="getTotal(i.bills,'total') > 0">
-                <span class='flex flex-column _flx_full tr'>Total<span class='reds fl'>{{ CurrencyFormat(getTotal(i.bills,'total')) }}</span></span>
-                <span class='flex flex-column _flx_full tr'>Paid<span class='navy fl'  >{{ CurrencyFormat(getTotal(i.bills,'paid')) }}</span></span>
-                <span class='flex flex-column _flx_full tr'>Pending<span class='green fl' >{{ CurrencyFormat(getTotal(i.bills,'pending')) }}</span></span>
+        <li class='fl w100' v-else><!-- details list view with filter -->
+          <div class='fl w100 groupList' v-for='(i,index) in DetailsList' :key='i' :id='"accordion"+index'>
+            <div class='fl w100 pa1 black center ' @click='(opened === index) ? opened = "" : opened = index' :class='{"acc-bar" : opened === index}'>
+              <div class='flex items-center mr3 cursor' >
+                <span class='b6 flex _flx_full'>
+                  <span class='pa1' style='width:10px;'>
+                    <i v-if='opened === index' class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                    <i v-else class="fa fa-chevron-circle-right fl" aria-hidden="true"></i>
+                  </span>
+                  <span class='_flx_full'>
+                    {{i.groupName}}
+                  </span>
+                </span>
+                <!-- <div class='pa1'>&nbsp;</div> -->
+                <div class='flex' style='min-width:320px;' v-if='!(opened === index)' >
+                  <span class='flex flex-column _flx_full tr'><span class='navy fl'>{{ CurrencyFormat(getTotal(i.bills,'total')) }}</span></span>
+                  <span class='flex flex-column _flx_full tr'><span class='navy green fl'  >{{ CurrencyFormat(getTotal(i.bills,'paid')) }}</span></span>
+                  <span class='flex flex-column _flx_full tr'><span class=' reds fl' >{{ CurrencyFormat(getTotal(i.bills,'pending')) }}</span></span>
+                </div>
               </div>
             </div>
-            <div class='fl w100  groupList pa1' 
+            <div :id="'collapseOne'+index" class='fl w100 collapse groupList pa1' 
                  v-for='y in i.bills' 
                  :key='y.bookingId'
+                 v-show='opened === index'
                  :class='{"active-item":(activeListItem.bookingId !== undefined && activeListItem.bookingId === y.bookingId)}'>
-                <div class="fl w100 pa2">
+                <div class="fl w100 pa2" v-if='false'>
                   <div class='fl w20 cursor'><span class="f12 pa1 cursor" :class='{"red": y.bookingStatus === "2"}' @click='getData(y,"getBill")'>{{y.bookingVoucherId}}</span></div>
                   <div class="fl w50  cursor" >
                     <div class="flex justify-between w-100">
@@ -211,7 +249,7 @@
                   </div>
                   <div class='fL w30 al-right p2-4'><span class=''>{{y.customerName}} </span> </div>
                 </div>      
-                <div class="fl w100 pa1">
+                <!-- <div class="fl w100 pa1" v-if='y.bookingStatus === "2"'>
                   <div class='fl w30 p2-4'></div>
                   <div class='fl w25 p2-4 cursor'>
                     
@@ -221,21 +259,45 @@
                     <span class='badge badge-primary b6' v-if='y.bookingStatus !== "2"'  >{{CurrencyFormat(y.total)}}</span>
                     <span class='badge badge-primary b6' :class='{"badge-danger": y.bookingStatus === "2"}' v-else  >{{CurrencyFormat(y.cancellationCharges)}}</span>
                   </div>
+                </div> -->
+                <!-- Total - Paid -  Pending -->
+                <div class='flex mr2' >
+                  <div class="flex items-center  _flx_full blue cursor">
+                    <div class="pa1 _flx_full ma2"  @click='getData(y,"getBill")' :class='{"red": y.bookingStatus === "2"}'>
+                      {{y.bookingVoucherId}}
+                      <i v-if='y.bookingStatus === "2"' class="fa fa-times" aria-hidden="true"></i>
+                    </div>
+                    <div class="pa1 _flx_full" @click='getAttach(y.bookingId)'>{{y.customerName}}</div>
+                  </div>
+                  <div class='flex justify-between pa1 mr2 tr' style='min-width:320px;'>
+                      <div class='flex flex-column justify-center _flx_full'>
+                        <!-- <span class=''>Total</span> -->
+                        <span class='navy b6' >{{CurrencyFormat(y.total)}}</span>
+                      </div>
+                      <div class='flex flex-column  justify-center _flx_full tr'>
+                        <!-- <span class=''>Paid</span> -->
+                        <span class='green b6' >{{CurrencyFormat(y.paid)}}</span>
+                      </div>
+                      <div class='flex flex-column justify-center _flx_full tr'>
+                        <!-- <span class=''>Pending</span> -->
+                        <span class='light-red b6' >{{CurrencyFormat(y.pending)}}</span>
+                      </div>
+                  </div>
                 </div>
-                <div class='flex justify-between pa1 tr'>
-                    <div class='flex flex-column _flx_full'>
-                      <!-- <span class=''>Total</span> -->
-                      <span class='navy b6' >{{CurrencyFormat(y.total)}}</span>
-                    </div>
-                    <div class='flex flex-column _flx_full tr'>
-                      <!-- <span class=''>Paid</span> -->
-                      <span class='green b6' >{{CurrencyFormat(y.paid)}}</span>
-                    </div>
-                    <div class='flex flex-column _flx_full tr'>
-                      <!-- <span class=''>Pending</span> -->
-                      <span class='light-red b6' >{{CurrencyFormat(y.pending)}}</span>
-                    </div>
+                
+            </div>
+            <div class='fl w100 pa1 bg-ddd'  v-show='opened === index'>
+              <div class='flex items-center mr3 '>
+                <span class='b6 _flx_full'>
+                  Total
+                </span>
+                <!-- <div class='pa1'>&nbsp;</div> -->
+                <div class='flex ' style='min-width:320px;'>
+                  <span class='flex flex-column _flx_full tr'><span class='navy fl'>{{ CurrencyFormat(getTotal(i.bills,'total')) }}</span></span>
+                  <span class='flex flex-column _flx_full tr'><span class='navy green fl'  >{{ CurrencyFormat(getTotal(i.bills,'paid')) }}</span></span>
+                  <span class='flex flex-column _flx_full tr'><span class=' reds fl' >{{ CurrencyFormat(getTotal(i.bills,'pending')) }}</span></span>
                 </div>
+              </div>
             </div>
             <div class='fl w100 p10 center no-bill' v-if='i.bills.length === 0'>No bills match the criteria.</div>
             <!-- bill strip end -->
@@ -248,8 +310,8 @@
     </div>
 
     <!-- meta listing -->
-     <div v-if=" ActiveView ==='meta' ">
-      <ul class='pa  h-fix-g y-flow' v-if='list.meta.length > 0 && list.group.length === 0' >
+     <div v-if=" ActiveView ==='meta' " class='full-flex flex flex-column'>
+      <ul class='pa  full-flex y-flow' v-if='list.meta.length > 0 && list.group.length === 0' >
         <li class='p20-40 cursor b6' v-for='i in list.meta'
             :class='{"active-items":(activeListItem.id !== undefined && activeListItem.id === i.id)}'
            :key='i.id' @click='getData(i,"getBillGroup")'><span>{{i.groupName}}</span>
@@ -257,9 +319,6 @@
         </li>
       </ul>
     </div>
-
-    
-
 
   </div>
 </template>
@@ -592,6 +651,7 @@ export default {
         {groupName: "Paid",id:2},
         {groupName: "Pending",id:3},
       ],
+      opened: "",
       DateFilter: 'all', 
       ActiveDetailsFilter: {},
       activeListItem: {},
@@ -774,6 +834,13 @@ export default {
 </script>
 
 <style>
+#panel{
+  flex: 1 0 0;
+}
+.acc-bar{
+  background-color: #ddd;
+  border-radius: 15px;
+}
 #panel ul { 
   
   border-left:1px solid #e7e7e7;
@@ -793,6 +860,9 @@ export default {
   background-color: #ffebd0;
   border-radius: 5px;
   border:1px solid orange
+}
+.full-flex{
+  flex:1 0 0;
 }
 /* Tooltip container */
 .tooltips {
