@@ -62,10 +62,10 @@
 
           <div class="modal-header">
             <div class='p2-4'>
-              <button type="button" class="close pab" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
-              <div class="modal-title f18" id="myModalLabel2" >
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style='right:0;top:2px;'><span class='f22' aria-hidden="true">&times;</span></button>
+              <div class="modal-title f18" id="myModalLabel2"  >
                 <!-- <span v-if='billData != null'>Travel Voucher</span> -->
-                <span >Uploaded Bills</span>
+                <span style='font-size:18px !important;'>Booking Details</span>
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default {
       download(f,p)
     },
     somethingWentWrong: function(){
-      alertify.error('Services currently unavailable due to network issues. Please Refresh the page or login again');
+      alertify.error('It seems service not available due to network issue. Please refresh or login again.');
     },
     createCSV: function(JSONData, ReportTitle, ShowLabel){
       //snippet from third party to create CSV
