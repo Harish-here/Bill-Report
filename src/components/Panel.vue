@@ -398,11 +398,11 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
 
-          return Number(this.list.details.filter(f => f.bookingStatus != "2").map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2)
+          return Number(this.list.details.map(x => x.paid).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2)
         }else{
           return Number(this.list.details.map(x => {
-            if(x.bills.filter(f => f.bookingStatus != "2").length > 0){
-              return x.bills.filter(f => f.bookingStatus != "2").map(y => y.paid).reduce((acc1,u) => Number(acc1) + Number(u),0);
+            if(x.bills.length > 0){
+              return x.bills.map(y => y.paid).reduce((acc1,u) => Number(acc1) + Number(u),0);
             }else{
               return 0;
             }
@@ -420,10 +420,10 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Number(this.list.details.filter(f => f.bookingStatus != "2").map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2);
+          return Number(this.list.details.map(x => x.pending).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2);
         }else{
           return Number(this.list.details.map(x => {
-            if(x.bills.filter(f => f.bookingStatus != "2").length > 0) return x.bills.filter(f => f.bookingStatus != "2").map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(u),0);
+            if(x.bills.length > 0) return x.bills.map(y => y.pending).reduce((acc1,u) => Number(acc1) + Number(u),0);
             return 0;
             
           }).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2);//do the calc when they are in group
@@ -439,10 +439,10 @@ export default {
       }else if(this.list.details.length > 0){
         if(this.list.details.length > 0 && !this.list.details[0].hasOwnProperty('groupName')){
           
-          return Number(this.list.details.filter(f => f.bookingStatus != "2").map(x => x.total).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2)
+          return Number(this.list.details.map(x => x.total).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2)
         }else{
           return Number(this.list.details.map(x => {
-            if(x.bills.filter(f => f.bookingStatus != "2").length > 0) return x.bills.filter(f => f.bookingStatus != "2").map(y => y.total).reduce((acc1,u) => Number(acc1) + Number(u),0);
+            if(x.bills.length > 0) return x.bills.map(y => y.total).reduce((acc1,u) => Number(acc1) + Number(u),0);
             return 0;
           }).reduce((acc,x) => Number(acc) + Number(x),0)).toFixed(2);
         }
